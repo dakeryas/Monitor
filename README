@@ -1,0 +1,3 @@
+# monitor
+
+This simple program is aimed at summing two spectra coming from sources located a different distances from the dection, and whose power vary independently. It mainly serves as an example of the use of the bloody ROOT dictionaries (LinkDef, rootmap). 
