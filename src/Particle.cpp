@@ -13,16 +13,16 @@ Particle::Particle():Particle(0, Point()){
   
 }
 
-Particle::Particle(const double energy, const Point position):energy(energy),position(position){
+Particle::Particle(double energy, const Point& position):energy(energy),position(position){
   
 }
 
 
-Particle::Particle(const double energy, const double x, const double y, const double z):Particle(energy, Point(x,y,z)){
+Particle::Particle(double energy, double x, double y, double z):Particle(energy, Point(x,y,z)){
 
 }
 
-bool Particle::isAboveEnergyThreshold(const double energyThreshold){
+bool Particle::isAboveEnergyThreshold(double energyThreshold){
   
   return energy > energyThreshold; 
 

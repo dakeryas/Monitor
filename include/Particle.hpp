@@ -10,10 +10,10 @@ public:
   Point position; // to store the whole vertex position(only one per event at the moment)
   
   Particle();
-  Particle(const double energy, const Point position);
-  Particle(const double energy, const double x, const double y, const double z);
+  Particle(double energy, const Point& position);
+  Particle(double energy, double x, double y, double z);
   virtual ~Particle();
-  bool isAboveEnergyThreshold(const double energyThreshold);
+  bool isAboveEnergyThreshold(double energyThreshold);
   
   ClassDef(Particle, 1)
   

@@ -11,7 +11,7 @@ ostream& operator<<(ostream& output, const Fuel& fuel){
   
 }
 
-Fuel getWeighedAverage(Fuel fuel1, const Fuel& fuel2, const double power1, const double power2, const double L1, const double L2){
+Fuel getWeighedAverage(Fuel fuel1, const Fuel& fuel2, double power1, double power2, double L1, double L2){
   
   fuel1.getWeighedAverage(fuel2, power1, power2, L1, L2);
   return fuel1;
@@ -22,9 +22,9 @@ Fuel::Fuel():Fuel(0,0,0,0){
   
 }
 
-Fuel::Fuel(const double numberOfFissions235U, const double numberOfFissions238U, const double numberOfFissions239Pu, const double numberOfFissions241Pu){
+Fuel::Fuel(double numberOfFissions235U, double numberOfFissions238U, double numberOfFissions239Pu, double numberOfFissions241Pu){
   
-  const double totalNumberOfFissions = numberOfFissions235U + numberOfFissions238U + numberOfFissions239Pu + numberOfFissions241Pu;
+  double totalNumberOfFissions = numberOfFissions235U + numberOfFissions238U + numberOfFissions239Pu + numberOfFissions241Pu;
   if(totalNumberOfFissions > 0){
    
     fraction["235U"] = numberOfFissions235U / totalNumberOfFissions;
@@ -48,10 +48,10 @@ Fuel::~Fuel(){
 
 }
 
-Fuel& Fuel::getWeighedAverage(const Fuel& toAdd, const double power1, const double power2, const double L1, const double L2){
+Fuel& Fuel::getWeighedAverage(const Fuel& toAdd, double power1, double power2, double L1, double L2){
 
-  const double weight1 = power1*pow(L2,2);
-  const double weight2 = power2*pow(L1,2);
+  double weight1 = power1*pow(L2,2);
+  double weight2 = power2*pow(L1,2);
   
   auto it1 = fraction.begin();
   auto it2 = toAdd.fraction.begin();
@@ -88,7 +88,7 @@ double Fuel::getFrac(const string& fracName) const{
 
 }
 
-void Fuel::setFrac(const string& fracName, const double fracValue){
+void Fuel::setFrac(const string& fracName, double fracValue){
   
   try{
     

@@ -11,14 +11,14 @@ class Reactor{
 
 public:
   Reactor();
-  Reactor(const double power, const double distanceToDetector, const Fuel& fuel);
+  Reactor(double power, double distanceToDetector, const Fuel& fuel);
   virtual ~Reactor();
   Reactor& operator+=(const Reactor& toAdd);//returns a reactor whose fuel is averaged according to the power and distance
   const double& getPower() const;
   const double& getDistanceToDetector() const;
   const Fuel& getFuel() const;
-  void setPower(const double power);
-  void setDistanceToDetector(const double distance);
+  void setPower(double power);
+  void setDistanceToDetector(double distance);
   void setFuel(const Fuel& fuel);
   bool isOff();//checks if the power is non-zero
   

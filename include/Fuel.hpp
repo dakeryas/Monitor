@@ -12,11 +12,11 @@ class Fuel{
 
 public:
   Fuel();
-  Fuel(const double numberOfFissions235U, const double numberOfFissions238U, const double numberOfFissions239Pu, const double numberOfFissions241Pu);//pass the total number of fissions that occured during the run
+  Fuel(double numberOfFissions235U, double numberOfFissions238U, double numberOfFissions239Pu, double numberOfFissions241Pu);//pass the total number of fissions that occured during the run
   virtual ~Fuel();
-  Fuel& getWeighedAverage(const Fuel& toAdd, const double power1, const double power2, const double L1, const double L2);//weighs "this" with toAdd according to the power and distances, and returns *this
+  Fuel& getWeighedAverage(const Fuel& toAdd, double power1, double power2, double L1, double L2);//weighs "this" with toAdd according to the power and distances, and returns *this
   double getFrac(const std::string& fracName) const;
-  void setFrac(const std::string& fracName, const double fracValue);
+  void setFrac(const std::string& fracName, double fracValue);
   bool isEmpty();
   void Print(std::ostream& output) const;
   
@@ -24,7 +24,7 @@ public:
   
 };
 
-Fuel getWeighedAverage(Fuel fuel1, const Fuel& fuel2, const double power1, const double power2, const double L1, const double L2); //calls fuel1.getWeighedAverage(fuel2...)
+Fuel getWeighedAverage(Fuel fuel1, const Fuel& fuel2, double power1, double power2, double L1, double L2); //calls fuel1.getWeighedAverage(fuel2...)
 std::ostream& operator<<(std::ostream& output, const Fuel& fuel);//fills "output" Print()
 
 #endif

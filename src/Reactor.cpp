@@ -20,7 +20,7 @@ Reactor::Reactor():Reactor(0, 0, Fuel()){
 
 }
 
-Reactor::Reactor(const double power, const double distanceToDetector, const Fuel& fuel):power(power),distanceToDetector(distanceToDetector),fuel(fuel){
+Reactor::Reactor(double power, double distanceToDetector, const Fuel& fuel):power(power),distanceToDetector(distanceToDetector),fuel(fuel){
 
 }
 
@@ -56,13 +56,13 @@ const Fuel& Reactor::getFuel() const{
 
 }
 
-void Reactor::setPower(const double power){
+void Reactor::setPower(double power){
   
   this->power = power;
 
 }
 
-void Reactor::setDistanceToDetector(const double distance){
+void Reactor::setDistanceToDetector(double distance){
   
   this->distanceToDetector = distance;
 
