@@ -53,18 +53,14 @@ Fuel& Fuel::getWeighedAverage(const Fuel& toAdd, double power1, double power2, d
   double weight1 = power1*pow(L2,2);
   double weight2 = power2*pow(L1,2);
   
-  auto it1 = fraction.begin();
-  auto it2 = toAdd.fraction.begin();
-  while(it1 != fraction.end() && it2 != toAdd.fraction.end()){
+  for(auto it = std::make_pair(fraction.begin(), toAdd.fraction.begin()); it.first != fraction.end() && it.second != toAdd.fraction.end(); ++it.first, ++it.second){
     
-    it1->second = it1->second*weight1 + it2->second*weight2;
+    it.first->second = it.first->second * weight1 + it.second->second * weight2;
     if(weight1 + weight2 > 0){ //if one core at least is 'on'
       
-      it1->second /= weight1+ weight2;
+      it.first->second /= weight1+ weight2;
       
     }
-    
-    ++it1, ++it2;
     
   }
   

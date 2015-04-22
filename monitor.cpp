@@ -6,10 +6,9 @@
 #include "Reactor.hpp"
 #include "Constants.hpp"
 
-using namespace std;
 using namespace constants;
 
-void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const map<string, TH1D>& referenceSpectra, const double energyThreshold, const char* outname){
+void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<std::string, TH1D>& referenceSpectra, double energyThreshold, const char* outname){
   
   int runData;
   Particle currentNeutrino;
@@ -37,7 +36,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const map<string
   simu2->SetBranchAddress("f235U", &f235U_2);
   simu2->SetBranchAddress("f238U", &f238U_2);
   
-  vector<Particle> neutrinos;
+  std::vector<Particle> neutrinos;
   double neutrinoRateData, neutrinoRateData1, neutrinoRateData2, neutrinoRateSimu, neutrinoRateSimu1, neutrinoRateSimu2;
   TH1D emittedSpectrum1;
   TH1D emittedSpectrum2;
@@ -65,6 +64,8 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const map<string
   unsigned numberOfNeutrinosAbove;
   double weight1, weight2;
   
+  double normalisation = 1e3 * distance::product * time::day;//GW * L1 L2 * seconds per day
+  
   for(unsigned k = 0; k<simu1->GetEntries(); ++k){//simu1 and simu2 have the same number of entries
 
     simu1->GetEntry(k);
@@ -85,12 +86,12 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const map<string
       data->GetEntry(++i);
     
     }
-    neutrinoRateData = distance::squaredProduct*numberOfNeutrinosAbove/runLength;
-    neutrinoRateSimu = efficiency::global*distance::squaredProduct*(numberOfNeutrinosSimu1 + numberOfNeutrinosSimu2)/runLength;
+    neutrinoRateData = normalisation * numberOfNeutrinosAbove/runLength;
+    neutrinoRateSimu = normalisation * efficiency::global * (numberOfNeutrinosSimu1 + numberOfNeutrinosSimu2)/runLength;
     if(weight1 > 0){
       
-      neutrinoRateData1 = numberOfNeutrinosAbove*numberOfNeutrinosSimu1/(numberOfNeutrinosSimu1+numberOfNeutrinosSimu2)/weight1/runLength;
-      neutrinoRateSimu1 = efficiency::global*numberOfNeutrinosSimu1/weight1/runLength;
+      neutrinoRateData1 = normalisation * numberOfNeutrinosAbove * numberOfNeutrinosSimu1/(numberOfNeutrinosSimu1+numberOfNeutrinosSimu2)/weight1/runLength;
+      neutrinoRateSimu1 = normalisation * efficiency::global * numberOfNeutrinosSimu1/weight1/runLength;
       
     }
     else{
@@ -101,8 +102,8 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const map<string
     }
     if(weight2 > 0){
       
-      neutrinoRateData2 = numberOfNeutrinosAbove*numberOfNeutrinosSimu2/(numberOfNeutrinosSimu1+numberOfNeutrinosSimu2)/weight2/runLength;
-      neutrinoRateSimu2 = efficiency::global*numberOfNeutrinosSimu2/weight2/runLength;
+      neutrinoRateData2 = normalisation * numberOfNeutrinosAbove * numberOfNeutrinosSimu2/(numberOfNeutrinosSimu1+numberOfNeutrinosSimu2)/weight2/runLength;
+      neutrinoRateSimu2 = normalisation * efficiency::global * numberOfNeutrinosSimu2/weight2/runLength;
       
     }
     else{
@@ -135,7 +136,8 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const map<string
     }
     merged->Fill();
     neutrinos.resize(0);
-
+std::cout<<"Data = "<<neutrinoRateData<<std::endl;
+std::cout<<"Simu = "<<neutrinoRateSimu<<std::endl;
   }
 
   merged->Write();
@@ -143,7 +145,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const map<string
   
 }
 
-void monitor(const string& dirname, const string& outname){
+void monitor(const std::string& dirname, const std::string& outname){
   
   TFile dataFile((dirname+"/"+"FinalFitIBDTree_DCIII_Data.root").c_str());
   TFile simuFile1((dirname+"/"+"nu_rate_per_run_B1_3rdPub_f.root").c_str());
@@ -153,20 +155,20 @@ void monitor(const string& dirname, const string& outname){
   TTree* simu2 = dynamic_cast<TTree*>(simuFile2.Get("nu"));
   
   TFile spectraFile((dirname+"/"+"spectra.root").c_str());
-  map<string, TH1D> referenceSpectra;
+  std::map<std::string, TH1D> referenceSpectra;
   referenceSpectra["235U"] = *dynamic_cast<TH1D*>(spectraFile.Get("spectrum_U235"));
   referenceSpectra["238U"] = *dynamic_cast<TH1D*>(spectraFile.Get("spectrum_U238"));
   referenceSpectra["239Pu"] = *dynamic_cast<TH1D*>(spectraFile.Get("spectrum_Pu239"));
   referenceSpectra["241Pu"] = *dynamic_cast<TH1D*>(spectraFile.Get("spectrum_Pu241"));
 
-  neutrinoRetriever(data, simu1, simu2, referenceSpectra, 0, (outname+".root").c_str());
+  neutrinoRetriever(data, simu1, simu2, referenceSpectra, 0, outname.c_str());
   
 }
 
 int main(int argc, char* argv[]){
   
   if(argc == 3) monitor(argv[1], argv[2]);
-  else cout<<"Error: you must provide a directory if the reference spectra and an out file name"<<endl;
+  else std::cout<<"Error: you must provide a directory if the reference spectra and an out file name \n";
   return 0;
   
 }
