@@ -64,7 +64,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<s
   unsigned numberOfNeutrinosAbove;
   double weight1, weight2;
   
-  double normalisation = 1e3 * distance::product * time::day;//GW * L1 L2 * seconds per day
+  double normalisation = 1e3 * distance::product;//GW * L1 L2 * seconds per day
   
   for(unsigned k = 0; k<simu1->GetEntries(); ++k){//simu1 and simu2 have the same number of entries
 
@@ -73,6 +73,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<s
     
     weight1 = power1*pow(distance::L2,2);
     weight2 = power2*pow(distance::L1,2);
+    runLength /= time::day; //get the runlenght in days
     
     numberOfNeutrinosAbove = 0;
     while(runData == runSimu && i < data->GetEntries()-1){
@@ -86,11 +87,11 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<s
       data->GetEntry(++i);
     
     }
-    neutrinoRateData = normalisation * numberOfNeutrinosAbove/runLength;
+    neutrinoRateData = normalisation * (numberOfNeutrinosAbove/runLength - backgroundRate::total);
     neutrinoRateSimu = normalisation * efficiency::global * (numberOfNeutrinosSimu1 + numberOfNeutrinosSimu2)/runLength;
     if(weight1 > 0){
       
-      neutrinoRateData1 = normalisation * numberOfNeutrinosAbove * numberOfNeutrinosSimu1/(numberOfNeutrinosSimu1+numberOfNeutrinosSimu2)/weight1/runLength;
+      neutrinoRateData1 = normalisation * (numberOfNeutrinosAbove/runLength - backgroundRate::total)* numberOfNeutrinosSimu1/(numberOfNeutrinosSimu1+numberOfNeutrinosSimu2)/weight1;
       neutrinoRateSimu1 = normalisation * efficiency::global * numberOfNeutrinosSimu1/weight1/runLength;
       
     }
@@ -102,7 +103,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<s
     }
     if(weight2 > 0){
       
-      neutrinoRateData2 = normalisation * numberOfNeutrinosAbove * numberOfNeutrinosSimu2/(numberOfNeutrinosSimu1+numberOfNeutrinosSimu2)/weight2/runLength;
+      neutrinoRateData2 = normalisation * (numberOfNeutrinosAbove/runLength - backgroundRate::total) * numberOfNeutrinosSimu2/(numberOfNeutrinosSimu1+numberOfNeutrinosSimu2)/weight2;
       neutrinoRateSimu2 = normalisation * efficiency::global * numberOfNeutrinosSimu2/weight2/runLength;
       
     }
@@ -136,8 +137,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<s
     }
     merged->Fill();
     neutrinos.resize(0);
-std::cout<<"Data = "<<neutrinoRateData<<std::endl;
-std::cout<<"Simu = "<<neutrinoRateSimu<<std::endl;
+
   }
 
   merged->Write();
