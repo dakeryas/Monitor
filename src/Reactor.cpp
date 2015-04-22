@@ -32,7 +32,7 @@ Reactor& Reactor::operator+=(const Reactor& toAdd){
   
   fuel = getWeighedAverage(fuel, toAdd.fuel, power, toAdd.power, distanceToDetector, toAdd.distanceToDetector);
   distanceToDetector = sqrt(distanceToDetector*toAdd.distanceToDetector);
-  power += toAdd.power;
+  power = power * toAdd.distanceToDetector/distanceToDetector + toAdd.power * distanceToDetector/toAdd.distanceToDetector;
   
   return *this;
 

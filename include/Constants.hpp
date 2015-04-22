@@ -30,6 +30,8 @@ namespace constants{
     const double fastNeutrons = 0.604;
     const double accidental = 0.07;
     const double total = cosmogenic + fastNeutrons + accidental;
+    
+  }
   
   namespace time{
     
