@@ -39,6 +39,10 @@ namespace constants{
     
   }
   
+  namespace energy{
+    
+    const double MWPerMGW = 1e3; //number of MegaWatt per GigaWatt 
+  
 }
 
 #endif

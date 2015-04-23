@@ -38,8 +38,6 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<s
   
   std::vector<Particle> neutrinos;
   double neutrinoRateData, neutrinoRateData1, neutrinoRateData2, neutrinoRateSimu, neutrinoRateSimu1, neutrinoRateSimu2;
-  TH1D emittedSpectrum1;
-  TH1D emittedSpectrum2;
   Reactor reactor1, reactor2,  equivalentReactor;
   reactor1.setDistanceToDetector(distance::L1);
   reactor2.setDistanceToDetector(distance::L2);
@@ -53,8 +51,6 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<s
   merged->Branch("neutrinoRateSimu", &neutrinoRateSimu);
   merged->Branch("neutrinoRateSimu1", &neutrinoRateSimu1);
   merged->Branch("neutrinoRateSimu2", &neutrinoRateSimu2);
-  merged->Branch("emittedSpectrum1", &emittedSpectrum1);
-  merged->Branch("emittedSpectrum2", &emittedSpectrum2);
   merged->Branch("reactor1", &reactor1);
   merged->Branch("reactor2", &reactor2);
   merged->Branch("reactorEquivalent", &equivalentReactor);
@@ -64,7 +60,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<s
   unsigned numberOfNeutrinosAbove;
   double weight1, weight2;
   
-  double normalisation = 1e3 * distance::product;//GW * L1 L2 * seconds per day
+  double normalisation = energy::MWPerMGW * distance::product;//GW * L1 L2 * seconds per day
   
   for(unsigned k = 0; k<simu1->GetEntries(); ++k){//simu1 and simu2 have the same number of entries
 
@@ -113,10 +109,6 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<s
       neutrinoRateSimu2 = 0;
       
     }
-    emittedSpectrum1 = f235U_1*referenceSpectra.at("235U")+f238U_1*referenceSpectra.at("238U")+f239Pu_1*referenceSpectra.at("239Pu")+f241Pu_1*referenceSpectra.at("241Pu");
-    emittedSpectrum1.Scale(1/weight1/runLength);
-    emittedSpectrum2 = f235U_2*referenceSpectra.at("235U")+f238U_2*referenceSpectra.at("238U")+f239Pu_2*referenceSpectra.at("239Pu")+f241Pu_2*referenceSpectra.at("241Pu");
-    emittedSpectrum2.Scale(1/weight2/runLength);
     reactor1.setPower(power1);
     reactor1.setFuel(Fuel(f235U_1,f238U_1,f239Pu_1,f241Pu_1));
     reactor2.setPower(power2);
