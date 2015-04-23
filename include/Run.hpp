@@ -19,7 +19,7 @@ public:
   double getSpentEnergy1() const;
   double getSpentEnergy2() const;
   double getMeanSpentEnergy(double distance1, double distance2);//get the mean spent energy for two reactors situated at distance1 and distance2 from the detector
-  double getNeutrinoRate(double distance1, double distance2, double backgroundRate = 0);//get the rate with respect to the total energy spent and substract the background noise
+  double getNeutrinoRate(double distance1, double distance2, double backgroundRate);//get the rate with respect to the total energy spent and substract the background noise
   
 };
 
