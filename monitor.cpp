@@ -4,6 +4,7 @@
 #include <TH1D.h>
 #include "Particle.hpp"
 #include "Reactor.hpp"
+#include "Run.hpp"
 #include "Constants.hpp"
 
 using namespace constants;
