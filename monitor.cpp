@@ -4,12 +4,11 @@
 #include <TH1D.h>
 #include "Particle.hpp"
 #include "Reactor.hpp"
-#include "Run.hpp"
 #include "Constants.hpp"
 
 using namespace constants;
 
-void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThreshold, const char* outname){
+void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const std::map<std::string, TH1D>& referenceSpectra, double energyThreshold, const char* outname){
   
   int runData;
   Particle currentNeutrino;
@@ -147,7 +146,14 @@ void monitor(const std::string& dirname, const std::string& outname){
   TTree* simu1 = dynamic_cast<TTree*>(simuFile1.Get("nu"));
   TTree* simu2 = dynamic_cast<TTree*>(simuFile2.Get("nu"));
   
-  neutrinoRetriever(data, simu1, simu2, 0, outname.c_str());
+  TFile spectraFile((dirname+"/"+"spectra.root").c_str());
+  std::map<std::string, TH1D> referenceSpectra;
+  referenceSpectra["235U"] = *dynamic_cast<TH1D*>(spectraFile.Get("spectrum_U235"));
+  referenceSpectra["238U"] = *dynamic_cast<TH1D*>(spectraFile.Get("spectrum_U238"));
+  referenceSpectra["239Pu"] = *dynamic_cast<TH1D*>(spectraFile.Get("spectrum_Pu239"));
+  referenceSpectra["241Pu"] = *dynamic_cast<TH1D*>(spectraFile.Get("spectrum_Pu241"));
+
+  neutrinoRetriever(data, simu1, simu2, referenceSpectra, 0, outname.c_str());
   
 }
 
