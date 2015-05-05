@@ -33,8 +33,8 @@ public:
 template <class T>
 std::ostream& operator<<(std::ostream& output, const Experiment<T>& experiment){
   
-  for(auto& pair : experiment.getRunMap()) output<<pair.first<<std::setw(6)<<std::left<<" "
-    <<"-->"<<std::setw(6)<<std::left<<" "<<std::setw(6)<<std::left<<pair.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate());
+  for(auto& pair : experiment.getRunMap()) output<<pair.first<<std::setw(5)<<std::left<<" "
+    <<"-->"<<std::setw(5)<<std::left<<" "<<std::setw(5)<<std::left<<pair.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate())<<"\n";
   
   return output;
 }
