@@ -1,7 +1,7 @@
 #ifndef BIN_H
 #define BIN_H
 
-#include <ostream>
+#include <iostream>
 #include <iomanip>
 
 template <class T>
@@ -60,7 +60,7 @@ void Bin<T>::setEdges(T binLowEdge, T binUpEdge){
 template <class T>
 T Bin<T>::getBinCenter() const{
   
-  return (binUpEdge - binLowEdge)*0.5;
+  return (binUpEdge + binLowEdge)*0.5;
 
 }
 

@@ -104,7 +104,7 @@ void Experiment<T>::emplaceChannel(double binLowEdge, double binUpEdge) const{
 template <class T>
 void Experiment<T>::addChannel(const Bin<T>& bin){
   
-  runMap[bin] = Run();//default construct the Run to zero neutrinos and zero time
+  runMap.emplace(bin, Run());//default construct the Run to zero neutrinos and zero time
 
 }
 
