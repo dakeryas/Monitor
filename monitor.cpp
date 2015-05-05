@@ -4,7 +4,7 @@
 #include <TH1D.h>
 #include "Particle.hpp"
 #include "Reactor.hpp"
-#include "Run.hpp"
+#include "Experiment.hpp"
 #include "Constants.hpp"
 
 using namespace constants;
@@ -56,6 +56,9 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
   merged->Branch("reactor2", &reactor2);
   merged->Branch("reactorEquivalent", &equivalentReactor);
 
+  Experiment<double> experiment(distance::L1, distance::L2, backgroundRate::total);
+  experiment.addChannels({Bin<double>(0.28, 0.3), Bin<double>(0.3, 0.32), Bin<double>(0.32, 0.34), Bin<double>(0.34, 0.36), Bin<double>(0.36, 0.38), Bin<double>(0.38, 0.4)});
+  
   unsigned i = 0;
   data->GetEntry(i);
   unsigned numberOfNeutrinosAbove;
@@ -84,6 +87,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
       data->GetEntry(++i);
     
     }
+    
     neutrinoRateData = normalisation * (numberOfNeutrinosAbove/runLength - backgroundRate::total);
     neutrinoRateSimu = normalisation * efficiency::global * (numberOfNeutrinosSimu1 + numberOfNeutrinosSimu2)/runLength;
     if(weight1 > 0){
@@ -116,6 +120,8 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
     reactor2.setFuel(Fuel(f235U_2,f238U_2,f239Pu_2,f241Pu_2));
     equivalentReactor = reactor1 + reactor2;
     
+    experiment.addRun(equivalentReactor.getFuel().getFrac("239Pu"), Run(numberOfNeutrinosAbove, runLength, power1, power2));
+    
     if(weight1 + weight2 > 0){ //if one core at least is 'on'
       
       neutrinoRateData /= weight1 + weight2;
@@ -133,6 +139,8 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
 
   }
 
+  std::cout<<experiment<<std::endl;
+  
   merged->Write();
   delete merged;
   
