@@ -12,6 +12,7 @@ class Bin{
   
 public:  
   Bin(T binLowEdge, T binUpEdge);
+  bool operator<(const Bin<T>& other) const;
   bool contains(T value);//excludes binUpEdge
   void setEdges(T binLowEdge, T binUpEdge);
   T getBinCenter() const;
@@ -31,6 +32,13 @@ std::ostream& operator<<(std::ostream& output, const Bin<T>& bin){
 template <class T>
 Bin<T>::Bin(T binLowEdge, T binUpEdge):binLowEdge(binLowEdge),binUpEdge(binUpEdge){
   
+}
+
+template <class T>
+bool Bin<T>::operator<(const Bin<T>& other) const{
+  
+  return getBinCenter() < other.getBinCenter();
+
 }
 
 template <class T>
