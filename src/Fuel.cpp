@@ -77,7 +77,7 @@ double Fuel::getFrac(const string& fracName) const{
   }
   catch(...){
     
-    cout<<fracName<<" is not an element of the fuel."<<endl;
+    std::cout<<fracName<<" is not an element of the fuel."<<endl;
     return 0;
     
   }

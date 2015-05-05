@@ -13,7 +13,7 @@ class Bin{
 public:  
   Bin(T binLowEdge, T binUpEdge);
   bool operator<(const Bin<T>& other) const;
-  bool contains(T value);//excludes binUpEdge
+  bool contains(T value) const;//excludes binUpEdge
   void setEdges(T binLowEdge, T binUpEdge);
   T getBinCenter() const;
   T getBinLowEdge() const;
@@ -42,7 +42,7 @@ bool Bin<T>::operator<(const Bin<T>& other) const{
 }
 
 template <class T>
-bool Bin<T>::contains(T value){
+bool Bin<T>::contains(T value) const{
   
   if(value >= binLowEdge && value < binUpEdge) return true;
   else return false;
