@@ -6,7 +6,7 @@
 #include "Run.hpp"
 
 template <class T>
-class Experiment{
+class Experiment{//class meant to hold runs in the corresponding fraction bin
 
   double distance1;//distance to reactor 1
   double distance2;// distance to reactor 2
@@ -20,8 +20,11 @@ public:
   double getBackgroundRate() const;
   std::map<Bin<T>, Run> getRunMap() const;
   void setDistance1(double  distance1) const;
-  void setDistance2(double distance2)const;
+  void setDistance2(double distance2) const;
   void setBackgroundRate(double backgroundRate) const;
+  void emplaceChannel(double binLowEdge, double binUpEdge) const;
+  void addChannel(const Bin<T>& bin);
+  void addChannels(const std::vector<Bin<T>>& channels);
   void addRun(double fraction, Run run);//add the run to the corresponding fraction
   void clearRuns();
   
@@ -89,6 +92,27 @@ void Experiment<T>::setBackgroundRate(double backgroundRate) const{
   
   this->backgroundRate = backgroundRate;
 
+}
+
+template <class T>
+void Experiment<T>::emplaceChannel(double binLowEdge, double binUpEdge) const{
+
+  addChannel(Bin<T>(binLowEdge, binUpEdge));  
+  
+}
+
+template <class T>
+void Experiment<T>::addChannel(const Bin<T>& bin){
+  
+  runMap[bin] = Run();//default construct the Run to zero neutrinos and zero time
+
+}
+
+template <class T>
+void Experiment<T>::addChannels(const std::vector<Bin<T>>& channels){
+
+  for(const auto& channel : channels) addChannel(channel);
+  
 }
 
 template <class T>

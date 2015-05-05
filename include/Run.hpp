@@ -6,7 +6,7 @@
 class Run{
 
   unsigned neutrinos;// number of neutrinos in the run
-  double time;// run lenght of the run
+  double time;// lenght of the run
   double spentEnergy1;//energy spent by reactor 1 during the run
   double spentEnergy2;//energy spent by reactor 2 during the run
   
