@@ -1,7 +1,7 @@
 #ifndef RUN_H
 #define RUN_H
 
-#include <ostream>
+#include <iostream>
 
 class Run{
 
