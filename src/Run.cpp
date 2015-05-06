@@ -58,7 +58,7 @@ double Run::getSpentEnergy2() const{
 
 double Run::getMeanSpentEnergy(double distance1, double distance2){
   
-  return (spentEnergy1 * distance1 + spentEnergy2 * distance2)/distance1/distance2;
+  return (spentEnergy1 * pow(distance2, 2) + spentEnergy2 * pow(distance1, 2))/distance1/distance2;
 
 }
 

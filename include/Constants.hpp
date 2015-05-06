@@ -35,13 +35,15 @@ namespace constants{
   
   namespace time{
     
-    const double day = 86400;
+    const double dayToSecond = 86400;
+    const double secondToDay = 1/dayToSecond;
     
   }
   
   namespace energy{
     
-    const double MWPerMGW = 1e3; //number of MegaWatt per GigaWatt
+    const double GWattToMWatt = 1e3; //number of MegaWatt per GigaWatt
+    const double MWattToGWatt = 1/GWattToMWatt;
     
   }
   

@@ -2,6 +2,7 @@
 #define RUN_H
 
 #include <iostream>
+#include <cmath>
 
 class Run{
 

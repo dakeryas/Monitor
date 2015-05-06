@@ -64,7 +64,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
   unsigned numberOfNeutrinosAbove;
   double weight1, weight2;
   
-  double normalisation = energy::MWPerMGW * distance::product;//GW * L1 L2 * seconds per day
+  double normalisation = energy::GWattToMWatt * distance::product;//GW * L1 L2 * seconds per day
   
   for(unsigned k = 0; k<simu1->GetEntries(); ++k){//simu1 and simu2 have the same number of entries
 
@@ -73,7 +73,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
     
     weight1 = power1*pow(distance::L2,2);
     weight2 = power2*pow(distance::L1,2);
-    runLength /= time::day; //get the runlenght in days
+    runLength *= time::secondToDay; //get the runlenght in days
     
     numberOfNeutrinosAbove = 0;
     while(runData == runSimu && i < data->GetEntries()-1){
