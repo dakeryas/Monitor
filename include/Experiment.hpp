@@ -24,7 +24,8 @@ public:
   void setBackgroundRate(double backgroundRate) const;
   void emplaceChannel(double binLowEdge, double binUpEdge) const;
   void addChannel(const Bin<T>& bin);
-  void addChannels(const std::vector<Bin<T>>& channels);
+  template <class Iterator>
+  void addChannels(Iterator begin, Iterator end);//copy channels pointed to from begin to end
   void addRun(double fraction, Run run);//add the run to the corresponding fraction
   void clearRuns();
   
@@ -109,9 +110,10 @@ void Experiment<T>::addChannel(const Bin<T>& bin){
 }
 
 template <class T>
-void Experiment<T>::addChannels(const std::vector<Bin<T>>& channels){
+template <class Iterator>
+void Experiment<T>::addChannels(Iterator begin, Iterator end){
 
-  for(const auto& channel : channels) addChannel(channel);
+  for(auto it = begin; it != end; ++it) addChannel(*it);
   
 }
 

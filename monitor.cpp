@@ -1,4 +1,3 @@
-#include <vector>
 #include <TFile.h>
 #include <TTree.h>
 #include <TH1D.h>
@@ -8,6 +7,18 @@
 #include "Constants.hpp"
 
 using namespace constants;
+
+template <class T>
+std::vector<Bin<T>> createBinning(unsigned numberOfBins, T firstEdge, T lastEdge){
+  
+  std::vector<Bin<T>> bins;
+  
+  T binWidth = (lastEdge - firstEdge)/numberOfBins;
+  for(unsigned k = 0; k < numberOfBins; ++k) bins.emplace_back(firstEdge + k * binWidth, firstEdge + (k+1)*binWidth);
+  
+  return bins;
+  
+}
 
 void adaptUnits(double& runLenght, double& power1, double& power2){//convert values to days and GW
   
@@ -65,7 +76,8 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
   merged->Branch("reactorEquivalent", &equivalentReactor);
 
   Experiment<double> experiment(distance::L1, distance::L2, backgroundRate::total);
-  experiment.addChannels({Bin<double>(0.28, 0.3), Bin<double>(0.3, 0.32), Bin<double>(0.32, 0.34), Bin<double>(0.34, 0.36), Bin<double>(0.36, 0.38), Bin<double>(0.38, 0.4)});
+  auto channels = createBinning(6, 0.28, 0.4);
+  experiment.addChannels(channels.begin(), channels.end());
   
   unsigned i = 0;
   data->GetEntry(i);
