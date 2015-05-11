@@ -56,14 +56,21 @@ double Run::getSpentEnergy2() const{
 
 }
 
-double Run::getMeanSpentEnergy(double distance1, double distance2){
+double Run::getMeanSpentEnergy(double distance1, double distance2) const{
   
   return (spentEnergy1 * pow(distance2, 2) + spentEnergy2 * pow(distance1, 2))/distance1/distance2;
 
 }
 
-double Run::getNeutrinoRate(double distance1, double distance2, double backgroundRate){
+double Run::getNeutrinoRate(double distance1, double distance2, double backgroundRate) const{
   
   return (neutrinos - backgroundRate * time)/getMeanSpentEnergy(distance1, distance2);
 
 }
+
+double Run::getNeutrinoRateError(double distance1, double distance2, double backgroundRate) const{
+
+  return sqrt(neutrinos - backgroundRate * time)/getMeanSpentEnergy(distance1, distance2);
+  
+}
+
