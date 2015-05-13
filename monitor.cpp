@@ -1,12 +1,30 @@
-#include <TFile.h>
-#include <TTree.h>
-#include <TH1D.h>
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1D.h"
+#include "TGraphErrors.h"
 #include "Particle.hpp"
 #include "Reactor.hpp"
 #include "Experiment.hpp"
 #include "Constants.hpp"
 
 using namespace constants;
+
+template <class T>
+TGraphErrors convert(const Experiment<T>& experiment){
+  
+  std::vector<T> binCenters, binWidths, values, valueErrors;
+  for(const auto& pair : experiment.getRunMap()){
+    
+    binCenters.emplace_back(pair.first.getBinCenter());
+    binWidths.emplace_back(pair.first.getBinWidth()/2);
+    values.emplace_back(pair.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate()));
+    valueErrors.emplace_back(pair.second.getNeutrinoRateError(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate()));
+    
+  }
+  
+  return TGraphErrors(binCenters.size(), binCenters.data(), values.data(), binWidths.data(), valueErrors.data());
+  
+}                        
 
 template <class T>
 std::vector<Bin<T>> createBinning(unsigned numberOfBins, T firstEdge, T lastEdge){
@@ -161,7 +179,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
   }
 
   std::cout<<experiment<<std::endl;
-  
+  convert(experiment).Write("graph");
   merged->Write();
   delete merged;
   
