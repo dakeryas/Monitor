@@ -1,42 +1,13 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1D.h"
-#include "TGraphErrors.h"
 #include "Particle.hpp"
 #include "Reactor.hpp"
-#include "Experiment.hpp"
 #include "Constants.hpp"
+#include "ExperimentConverter.hpp"
+#include "Binner.hpp"
 
 using namespace constants;
-
-template <class T>
-TGraphErrors convert(const Experiment<T>& experiment){
-  
-  std::vector<T> binCenters, binWidths, values, valueErrors;
-  for(const auto& pair : experiment.getRunMap()){
-    
-    binCenters.emplace_back(pair.first.getBinCenter());
-    binWidths.emplace_back(pair.first.getBinWidth()/2);
-    values.emplace_back(pair.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate()));
-    valueErrors.emplace_back(pair.second.getNeutrinoRateError(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate()));
-    
-  }
-  
-  return TGraphErrors(binCenters.size(), binCenters.data(), values.data(), binWidths.data(), valueErrors.data());
-  
-}                        
-
-template <class T>
-std::vector<Bin<T>> createBinning(unsigned numberOfBins, T firstEdge, T lastEdge){
-  
-  std::vector<Bin<T>> bins;
-  
-  T binWidth = (lastEdge - firstEdge)/numberOfBins;
-  for(unsigned k = 0; k < numberOfBins; ++k) bins.emplace_back(firstEdge + k * binWidth, firstEdge + (k+1)*binWidth);
-  
-  return bins;
-  
-}
 
 void adaptUnits(double& runLenght, double& power1, double& power2){//convert values to days and GW
   
@@ -94,7 +65,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
   merged->Branch("reactorEquivalent", &equivalentReactor);
 
   Experiment<double> experiment(distance::L1, distance::L2, backgroundRate::total);
-  auto channels = createBinning(6, 0.28, 0.4);
+  auto channels = Binner::createBinning(6, 0.28, 0.4);
   experiment.addChannels(channels.begin(), channels.end());
   
   unsigned i = 0;
@@ -179,7 +150,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
   }
 
   std::cout<<experiment<<std::endl;
-  convert(experiment).Write("graph");
+  ExperimentConverter::TGraph(experiment).Write("graph");
   merged->Write();
   delete merged;
   
