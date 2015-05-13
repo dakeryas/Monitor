@@ -18,6 +18,7 @@ public:
   T getBinCenter() const;
   T getBinLowEdge() const;
   T getBinUpEdge() const;
+  T getBinWidth() const;
   
 };
 
@@ -75,6 +76,13 @@ template <class T>
 T Bin<T>::getBinUpEdge() const{
   
   return binUpEdge;
+
+}
+
+template <class T>
+T Bin<T>::getBinWidth() const{
+  
+ return binUpEdge - binLowEdge;
 
 }
 

@@ -36,7 +36,7 @@ std::ostream& operator<<(std::ostream& output, const Experiment<T>& experiment){
   
   output.precision(4);
   
-  for(auto& pair : experiment.getRunMap()) output<<pair.first<<std::setw(5)<<std::left<<" "
+  for(const auto& pair : experiment.getRunMap()) output<<pair.first<<std::setw(5)<<std::left<<" "
     <<"-->"<<std::setw(5)<<std::left<<" "<<std::setw(7)<<std::left<<pair.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate())
     <<"+/-"<<std::setw(2)<<std::left<<" "<<std::setw(5)<<std::left<<pair.second.getNeutrinoRateError(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate())
     <<"\n";
