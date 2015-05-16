@@ -11,7 +11,7 @@ MAKEFLAGS := -j$(shell nproc)
 SOFLAGS = -shared
 FLAGS := $(shell root-config --cflags)
 FLAGS += -I. -I$(IDIR)
-OPTFLAG = $(FLAGS) -Wall -Wextra -O3
+OPTFLAG = $(FLAGS) -Wall -Wextra -O3 -MMD -MP
 
 LIBS :=  $(shell root-config --libs)
 LIBS += -lrt
@@ -19,6 +19,8 @@ LIBS += -lrt
 OBJS := $(patsubst %.cpp,%.o,$(addprefix $(ODIR)/,$(wildcard *.cpp)))
 OBJS += $(patsubst $(SDIR)/%.cpp,$(ODIR)/%.o,$(wildcard $(SDIR)/*.cpp))
 OBJS += $(ODIR)/$(patsubst %.cpp,%.o, $(DICTIONARY))
+
+DEPS = $(patsubst %.o,%.d, $(OBJS))
 
 .PHONY: clean
 
@@ -56,4 +58,4 @@ $(EXECUTABLE):$(OBJS)
 clean:
 	rm -f $(ODIR)/*.o $(SDIR)/*~ $(IDIR)/*~  $(IDIR)/*.d $(DDIR)/* $(EXECUTABLE) *.txt *.root  *.so *.pcm *.rootmap *~ *.d
 	
-
+-include $(DEPS)
