@@ -17,8 +17,6 @@ public:
   virtual ~Point();
   void cylinder(TRandom3& ran, double R, double h); //moves a point randomly into a cylinder of radius r and height h
   void HollowCylinder(TRandom3& ran, double R1, double R2, double h1, double h2); //moves a point randomly between two cylinders of respective radii R1 and R2 and of respective height h1 and h2
-
-  ClassDef(Point, 1)
   
 };
 

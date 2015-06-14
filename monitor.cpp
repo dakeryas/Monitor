@@ -19,9 +19,9 @@ void adaptUnits(double& runLenght, double& power1, double& power2){//convert val
 void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThreshold, const char* outname){
   
   int runData;
-  double currentNeutrinosEnergy;
+  double currentEnergy;
   data->SetBranchAddress("RunNumber", &runData);
-  data->SetBranchAddress("myPromptEvisID", &(currentNeutrinosEnergy));
+  data->SetBranchAddress("myPromptEvisID", &(currentEnergy));
   
   int runSimu;
   double runLength, numberOfNeutrinosSimu1, power1, f239Pu_1, f241Pu_1, f235U_1, f238U_1;
@@ -41,7 +41,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
   simu2->SetBranchAddress("f235U", &f235U_2);
   simu2->SetBranchAddress("f238U", &f238U_2);
   
-  std::vector<double> neutrinosEnergies;
+  std::vector<Particle> neutrinos;
   Reactor reactor1, reactor2,  equivalentReactor;
   reactor1.setDistanceToDetector(distance::L1);
   reactor2.setDistanceToDetector(distance::L2);
@@ -52,7 +52,6 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
   
   unsigned i = 0;
   data->GetEntry(i);
-  unsigned numberOfNeutrinosAbove;
   
   for(unsigned k = 0; k<simu1->GetEntries(); ++k){//simu1 and simu2 have the same number of entries
 
@@ -61,13 +60,11 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
     
     adaptUnits(runLength, power1, power2);
     
-    numberOfNeutrinosAbove = 0;
     while(runData == runSimu && i < data->GetEntries()-1){
       
-      if(currentNeutrinosEnergy > energyThreshold){
+      if(currentEnergy > energyThreshold){
 	
-	neutrinosEnergies.push_back(currentNeutrinosEnergy);
-	++numberOfNeutrinosAbove;
+	neutrinos.emplace_back(Particle(currentEnergy));
 	
       }
       data->GetEntry(++i);
@@ -80,9 +77,9 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
     reactor2.setFuel(Fuel(f235U_2,f238U_2,f239Pu_2,f241Pu_2));
     equivalentReactor = reactor1 + reactor2;
     
-    experiment.addRun(equivalentReactor.getFuel().getFrac("239Pu"), Run(numberOfNeutrinosAbove, runLength, power1, power2));
+    experiment.addRun(equivalentReactor.getFuel().getFrac("239Pu"), Run(neutrinos.begin(), neutrinos.end(), runLength, power1, power2));
     
-    neutrinosEnergies.resize(0);
+    neutrinos.resize(0);
 
   }
 

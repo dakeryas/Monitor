@@ -1,7 +1,5 @@
 #include "Reactor.hpp"
 
-ClassImp(Reactor)
-
 std::ostream& operator<<(std::ostream& output, const Reactor& r){
   
   output<<"Power = "<<r.getPower()<<"\tDistance to detector = "<<r.getDistanceToDetector()<<"\nFuel composition :\n"<<r.getFuel();

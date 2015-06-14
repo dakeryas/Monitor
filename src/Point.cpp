@@ -1,7 +1,5 @@
 #include "Point.hpp"
 
-ClassImp(Point)
-
 using namespace std;
 
 ostream& operator<<(ostream& output, const Point& p){

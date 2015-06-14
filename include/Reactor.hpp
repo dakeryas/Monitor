@@ -22,8 +22,6 @@ public:
   void setFuel(const Fuel& fuel);
   bool isOff();//checks if the power is non-zero
   
-  ClassDef(Reactor, 1)
-  
 };
 
 std::ostream& operator<<(std::ostream& output, const Reactor& r);//for input masses in MeV sets the file into GeV

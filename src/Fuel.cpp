@@ -1,7 +1,5 @@
 #include "Fuel.hpp"
 
-ClassImp(Fuel)
-
 using namespace std;
 
 ostream& operator<<(ostream& output, const Fuel& fuel){

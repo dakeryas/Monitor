@@ -20,8 +20,6 @@ public:
   bool isEmpty();
   void Print(std::ostream& output) const;
   
-  ClassDef(Fuel, 1)
-  
 };
 
 Fuel getWeighedAverage(Fuel fuel1, const Fuel& fuel2, double power1, double power2, double L1, double L2); //calls fuel1.getWeighedAverage(fuel2...)
