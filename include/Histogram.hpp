@@ -12,6 +12,7 @@ class Histogram{
 public:
   template <class Iterator>
   Histogram(Iterator firstBin, Iterator lastBin);
+  Histogram<T>& operator+=(const Histogram<T>& other);
   void addCount(const T& value);
   unsigned getCount(Bin<T> bin) const;
   unsigned getTotalCounts() const;
@@ -28,10 +29,25 @@ std::ostream& operator<<(std::ostream& output, const Histogram<T>& histogram){
 }
 
 template <class T>
+Histogram<T> operator+(Histogram<T> histogram1, const Histogram<T>& histogram2){
+  
+  return histogram1 += histogram2;
+  
+}
+
+template <class T>
 template <class Iterator>
 Histogram<T>::Histogram(Iterator firstBin, Iterator lastBin){
   
   for(auto it = firstBin; it != lastBin; ++it) countMap[*it] = 0;
+  
+}
+
+template <class T>
+Histogram<T>& Histogram<T>::operator+=(const Histogram<T>& other){
+
+  for(auto& pair : other.countMap) countMap[pair.first] += pair.second;
+  return *this;
   
 }
 
