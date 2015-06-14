@@ -4,6 +4,7 @@
 #include "Particle.hpp"
 #include "Reactor.hpp"
 #include "Constants.hpp"
+#include "Histogram.hpp"
 #include "ExperimentConverter.hpp"
 #include "Binner.hpp"
 
