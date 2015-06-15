@@ -4,7 +4,7 @@
 #include <cmath>
 
 namespace constants{
-
+  
   namespace distance{
     
     const double L1 = 111520;//old value (used in the simulation)
@@ -45,6 +45,14 @@ namespace constants{
     const double GWattToMWatt = 1e3; //number of MegaWatt per GigaWatt
     const double MWattToGWatt = 1/GWattToMWatt;
     
+  }
+  
+  void adaptUnits(double& runLenght, double& power1, double& power2){//convert values to days and GW
+  
+    runLenght *= time::secondToDay;
+    power1 *= energy::MWattToGWatt;
+    power2 *= energy::MWattToGWatt;
+  
   }
   
 }

@@ -26,6 +26,8 @@ public:
   double getMeanSpentEnergy(double distance1, double distance2) const;//get the mean spent energy for two reactors situated at distance1 and distance2 from the detector
   double getNeutrinoRate(double distance1, double distance2, double backgroundRate) const;//get the rate with respect to the total energy spent and substract the background noise
   double getNeutrinoRateError(double distance1, double distance2, double backgroundRate) const;
+  template <class T, class Iterator>
+  Histogram<T> getNeutrinoSpectrum(Iterator firstBin, Iterator lastBin) const;
   
 };
 
@@ -104,6 +106,14 @@ double Run::getNeutrinoRateError(double distance1, double distance2, double back
   
 }
 
+template <class T, class Iterator>
+Histogram<T> Run::getNeutrinoSpectrum(Iterator firstBin, Iterator lastBin) const{
+
+  Histogram<T> histogram(firstBin, lastBin);
+  for(const auto& neutrino : neutrinos) histogram.addCount(neutrino.getEnergy());
+  return histogram;
+  
+}
 
 
 #endif
