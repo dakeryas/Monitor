@@ -6,16 +6,6 @@
 #include "ExperimentConverter.hpp"
 #include "Binner.hpp"
 
-using namespace constants;
-
-void adaptUnits(double& runLenght, double& power1, double& power2){//convert values to days and GW
-  
-  runLenght *= time::secondToDay;
-  power1 *= energy::MWattToGWatt;
-  power2 *= energy::MWattToGWatt;
-  
-}
-
 void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThreshold, const char* outname){
   
   int runData;
@@ -43,10 +33,10 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
   
   std::vector<Particle> neutrinos;
   Reactor reactor1, reactor2,  equivalentReactor;
-  reactor1.setDistanceToDetector(distance::L1);
-  reactor2.setDistanceToDetector(distance::L2);
+  reactor1.setDistanceToDetector(constants::distance::L1);
+  reactor2.setDistanceToDetector(constants::distance::L2);
 
-  Experiment<double> experiment(distance::L1, distance::L2, backgroundRate::total);
+  Experiment<double> experiment(constants::distance::L1, constants::distance::L2, constants::backgroundRate::total);
   auto channels = Binner::createBinning(6, 0.28, 0.4);
   experiment.addChannels(channels.begin(), channels.end());
   
@@ -58,7 +48,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
     simu1->GetEntry(k);
     simu2->GetEntry(k);
     
-    adaptUnits(runLength, power1, power2);
+    constants::adaptUnits(runLength, power1, power2);
     
     while(runData == runSimu && i < data->GetEntries()-1){
       
@@ -84,6 +74,9 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, double energyThr
   }
 
   std::cout<<experiment<<std::endl;
+  auto energyChannels = Binner::createBinning(4, 0., 8.);
+  for(const auto& pair : experiment.getRunMap()) std::cout<<pair.first<<"\n"<<pair.second.getNeutrinoSpectrum<double, double>(energyChannels.begin(), energyChannels.end()).normalise()<<std::endl;
+  
   TFile outfile(outname, "recreate");
   ExperimentConverter::TGraph(experiment).Write("graph");
   
@@ -105,7 +98,7 @@ void monitor(const std::string& dirname, const std::string& outname){
 int main(int argc, char* argv[]){
   
   if(argc == 3) monitor(argv[1], argv[2]);
-  else std::cout<<"Error: you must provide a directory if the reference spectra and an out file name \n";
+  else std::cout<<"Error: you must provide a directory for the reference spectra and an out file name \n";
   return 0;
   
 }
