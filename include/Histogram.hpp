@@ -4,78 +4,126 @@
 #include <map>
 #include "Bin.hpp"
 
-template <class T>
+template <class T, class K>
 class Histogram{
 
-  std::map<Bin<T>, unsigned> countMap;//map to store the counts for Bin<T>
+  std::map<Bin<T>, K> countMap;//map to store the counts for Bin<T>
   
 public:
   template <class Iterator>
   Histogram(Iterator firstBin, Iterator lastBin);
-  Histogram<T>& operator+=(const Histogram<T>& other);
+  Histogram<T,K>& operator+=(const Histogram<T,K>& other);
+  Histogram<T,K>& operator*=(const K& factor);
+  Histogram<T,K>& operator/=(const K& factor);
+  Histogram<T,K>& normalise();
   void addCount(const T& value);
-  unsigned getCount(Bin<T> bin) const;
-  unsigned getTotalCounts() const;
-  const std::map<Bin<T>, unsigned>& getCountMap() const;
+  K getCount(const Bin<T>& bin) const;
+  K getTotalCounts() const;
+  const std::map<Bin<T>, K>& getCountMap() const;
   
 };
 
-template <class T>
-std::ostream& operator<<(std::ostream& output, const Histogram<T>& histogram){
+
+
+template <class T, class K>
+std::ostream& operator<<(std::ostream& output, const Histogram<T,K>& histogram){
   
   for(const auto& pair : histogram.getCountMap()) output<<pair.first<<std::setw(6)<<std::left<<" "<<"-->"<<std::setw(6)<<std::left<<" "<<std::setw(9)<<std::left<<pair.second<<"\n";
   return output;
   
 }
 
-template <class T>
-Histogram<T> operator+(Histogram<T> histogram1, const Histogram<T>& histogram2){
+template <class T, class K>
+Histogram<T,K> operator+(Histogram<T,K> histogram1, const Histogram<T,K>& histogram2){
   
   return histogram1 += histogram2;
   
 }
 
-template <class T>
+template <class T, class K>
+Histogram<T,K> operator*(Histogram<T,K> histogram, const K& factor){
+  
+  return histogram *= factor;
+  
+}
+
+template <class T, class K>
+Histogram<T,K> operator*(const K& factor, Histogram<T,K> histogram){
+  
+  return histogram * factor;
+  
+}
+
+template <class T, class K>
+Histogram<T,K> operator/(Histogram<T,K> histogram, const K& factor){
+  
+  return histogram /= factor;
+  
+}
+
+template <class T, class K>
 template <class Iterator>
-Histogram<T>::Histogram(Iterator firstBin, Iterator lastBin){
+Histogram<T,K>::Histogram(Iterator firstBin, Iterator lastBin){
   
   for(auto it = firstBin; it != lastBin; ++it) countMap[*it] = 0;
   
 }
 
-template <class T>
-Histogram<T>& Histogram<T>::operator+=(const Histogram<T>& other){
+template <class T, class K>
+Histogram<T,K>& Histogram<T,K>::operator+=(const Histogram<T,K>& other){
 
   for(auto& pair : other.countMap) countMap[pair.first] += pair.second;
   return *this;
   
 }
 
-template <class T>
-void Histogram<T>::addCount(const T& value){
+template <class T, class K>
+Histogram<T,K>& Histogram<T,K>::operator*=(const K& factor){
+
+  for(auto& pair : countMap) pair.second *= factor;
+  return *this;
+  
+}
+
+template <class T, class K>
+Histogram<T,K>& Histogram<T,K>::operator/=(const K& factor){
+
+  return *this *= 1/factor;
+  
+}
+
+template <class T, class K>
+Histogram<T,K>& Histogram<T,K>::normalise(){
+
+  return *this /= getTotalCounts();
+  
+}
+
+template <class T, class K>
+void Histogram<T,K>::addCount(const T& value){
 
   for(auto& pair : countMap) if(pair.first.contains(value)) pair.second += 1; 
   
 }
 
-template <class T>
-unsigned Histogram<T>::getCount(Bin<T> bin) const{
+template <class T, class K>
+K Histogram<T,K>::getCount(const Bin<T>& bin) const{
   
   return countMap.at(bin);
   
 }
 
-template <class T>
-unsigned Histogram<T>::getTotalCounts() const{
+template <class T, class K>
+K Histogram<T,K>::getTotalCounts() const{
 
-  unsigned totalCounts = 0;
+  K totalCounts = 0;
   for(const auto& pair : countMap) totalCounts += pair.second;
   return totalCounts;
   
 }
 
-template <class T>
-const std::map<Bin<T>, unsigned>& Histogram<T>::getCountMap() const{
+template <class T, class K>
+const std::map<Bin<T>, K>& Histogram<T,K>::getCountMap() const{
   
   return countMap;
 
