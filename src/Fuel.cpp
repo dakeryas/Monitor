@@ -1,8 +1,6 @@
 #include "Fuel.hpp"
 
-using namespace std;
-
-ostream& operator<<(ostream& output, const Fuel& fuel){
+std::ostream& operator<<(std::ostream& output, const Fuel& fuel){
   
   fuel.Print(output);
   return output;
@@ -75,7 +73,7 @@ double Fuel::getFrac(const string& fracName) const{
   }
   catch(...){
     
-    std::cout<<fracName<<" is not an element of the fuel."<<endl;
+    std::cout<<fracName<<" is not an element of the fuel."<<std::endl;
     return 0;
     
   }
@@ -91,7 +89,7 @@ void Fuel::setFrac(const string& fracName, double fracValue){
   }
   catch(...){
     
-    cout<<fracName<<" is not an element of the fuel."<<endl;
+    std::cout<<fracName<<" is not an element of the fuel."<<std::endl;
     
   }
 
@@ -105,7 +103,7 @@ bool Fuel::isEmpty(){
 
 }
 
-void Fuel::Print(ostream& output) const{
+void Fuel::Print(std::ostream& output) const{
   
   for(auto it = fraction.begin(); it != fraction.end(); ++it) output<<it->first<<" = "<<it->second<<"\t";
 
