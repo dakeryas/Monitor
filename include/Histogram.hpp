@@ -10,20 +10,24 @@ class Histogram{
   std::map<Bin<T>, K> countMap;//map to store the counts for Bin<T>
   
 public:
+  Histogram() = default;
   template <class Iterator>
   Histogram(Iterator firstBin, Iterator lastBin);
   Histogram<T,K>& operator+=(const Histogram<T,K>& other);
   Histogram<T,K>& operator*=(const K& factor);
   Histogram<T,K>& operator/=(const K& factor);
   Histogram<T,K>& normalise();
+  void addChannel(const Bin<T>& bin);
+  template <class Iterator>
+  void addChannels(Iterator begin, Iterator end);//copy channels pointed to from begin to end
   void addCount(const T& value);
+  void setCount(const Bin<T>& bin, const K& count);
+  K getCount(const T& value) const;
   K getCount(const Bin<T>& bin) const;
   K getTotalCounts() const;
   const std::map<Bin<T>, K>& getCountMap() const;
   
 };
-
-
 
 template <class T, class K>
 std::ostream& operator<<(std::ostream& output, const Histogram<T,K>& histogram){
@@ -100,9 +104,38 @@ Histogram<T,K>& Histogram<T,K>::normalise(){
 }
 
 template <class T, class K>
+void Histogram<T,K>::addChannel(const Bin<T>& bin){
+  
+  countMap.emplace(bin, K{});//default construct K
+
+}
+
+template <class T, class K>
+template <class Iterator>
+void Histogram<T,K>::addChannels(Iterator begin, Iterator end){
+
+  for(auto it = begin; it != end; ++it) addChannel(*it);
+  
+}
+
+template <class T, class K>
 void Histogram<T,K>::addCount(const T& value){
 
   for(auto& pair : countMap) if(pair.first.contains(value)) pair.second += 1; 
+  
+}
+
+template <class T, class K>
+void Histogram<T,K>::setCount(const Bin<T>& bin, const K& count){
+
+  countMap[bin] = count;
+  
+}
+
+template <class T, class K>
+K Histogram<T,K>::getCount(const T& value) const{
+  
+  for(auto& pair : countMap) if(pair.first.contains(value)) return pair.second;
   
 }
 
