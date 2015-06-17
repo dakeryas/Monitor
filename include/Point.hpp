@@ -2,6 +2,7 @@
 #define POINT_H
 
 #include <vector>
+#include <stdexcept> 
 #include <initializer_list>
 #include <iostream>
 #include <iomanip>
@@ -18,6 +19,7 @@ public:
   std::vector<T>::const_iterator end() const;
   std::vector<T>::iterator begin() ;
   std::vector<T>::iterator end() ;
+  T getCoordinate(unsigned k) const;
   unsigned getDimension() const;
   
 };
@@ -76,6 +78,22 @@ std::vector< T >::iterator Point<T>::end(){
   
   return coordinates.end();
 
+}
+
+template <class T>
+T Point<T>::getCoordinate(unsigned k) const{
+
+  try{
+    
+    return coordinates.at(k);
+    
+  }
+  catch(std::out_of_range& e){
+    
+    std::cout<<"Error: "<<*this<<"\n"<<" has no "<<k<<" dimension"<<std::endl;
+    
+  }
+  
 }
 
 template <class T>
