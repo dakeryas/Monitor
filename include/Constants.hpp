@@ -47,12 +47,27 @@ namespace constants{
     
   }
   
+  namespace mass{
+    
+    const double electron = 0.511;
+    const double proton = 938.272;
+    const double neutron = 939.5654;
+    
+  }
+  
   void adaptUnits(double& runLenght, double& power1, double& power2){//convert values to days and GW
   
     runLenght *= time::secondToDay;
     power1 *= energy::MWattToGWatt;
     power2 *= energy::MWattToGWatt;
   
+  }
+  
+  double crossSection(double neutrinoEnergy){
+    
+    double positronEnergy = neutrinoEnergy - mass::neutron + mass::proton;
+    return positronEnergy * std::sqrt(std::pow(positronEnergy, 2) - std::pow(mass::electron, 2));
+    
   }
   
 }
