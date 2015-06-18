@@ -14,7 +14,7 @@ namespace Converter{
     
     std::vector<T> binCenters, binWidths;
     std::vector<K> values, valueErrors;
-    for(const auto& pair : histogram.getCountMap()){
+    for(const auto& pair : histogram){
       
       binCenters.emplace_back(pair.first.getBinCenter());
       binWidths.emplace_back(pair.first.getBinWidth()/2);

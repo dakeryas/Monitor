@@ -31,7 +31,6 @@ public:
   void addCount(const T& value);
   void setCount(const Bin<T>& bin, const K& count);
   
-  
 };
 
 template <class T, class K>

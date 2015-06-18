@@ -15,10 +15,10 @@ public:
   template <class Iterator>
   Point(Iterator firstCoordinate, Iterator lastCoordinate);
   Point(std::initializer_list<T> coordinates);
-  std::vector<T>::const_iterator begin() const;
-  std::vector<T>::const_iterator end() const;
-  std::vector<T>::iterator begin() ;
-  std::vector<T>::iterator end() ;
+  typename std::vector<T>::const_iterator begin() const;
+  typename std::vector<T>::const_iterator end() const;
+  typename std::vector<T>::iterator begin() ;
+  typename std::vector<T>::iterator end() ;
   T getCoordinate(unsigned k) const;
   unsigned getDimension() const;
   
@@ -27,7 +27,6 @@ public:
 template <class T>
 std::ostream& operator<<(std::ostream& output, const Point<T>& point){
   
-  std::ostream output;
   output<<"(";
   
   if(point.getDimension() != 0){
@@ -43,6 +42,7 @@ std::ostream& operator<<(std::ostream& output, const Point<T>& point){
 }
 
 template <class T>
+template <class Iterator>
 Point<T>::Point(Iterator firstCoordinate, Iterator lastCoordinate):coordinates(firstCoordinate, lastCoordinate){
 
 }
@@ -53,28 +53,28 @@ Point<T>::Point(std::initializer_list<T> coordinates):Point(coordinates.begin, c
 }
 
 template <class T>
-std::vector< T >::const_iterator Point<T>::begin() const{
+typename std::vector<T>::const_iterator Point<T>::begin() const{
   
   return coordinates.begin();
 
 }
 
 template <class T>
-std::vector< T >::const_iterator Point<T>::end() const{
+typename std::vector<T>::const_iterator Point<T>::end() const{
   
   return coordinates.end();
 
 }
 
 template <class T>
-std::vector< T >::iterator Point<T>::begin(){
+typename std::vector<T>::iterator Point<T>::begin(){
   
   return coordinates.begin();
 
 }
 
 template <class T>
-std::vector< T >::iterator Point<T>::end(){
+typename std::vector<T>::iterator Point<T>::end(){
   
   return coordinates.end();
 
