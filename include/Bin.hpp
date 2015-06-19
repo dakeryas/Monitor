@@ -1,88 +1,130 @@
 #ifndef BIN_H
 #define BIN_H
 
-#include <iostream>
-#include <iomanip>
+#include "Segement.hpp"
 
 template <class T>
 class Bin{
 
-  T binLowEdge;
-  T binUpEdge;
+  std::vector<Segment<T>> edges;
   
-public:  
-  Bin(T binLowEdge, T binUpEdge);
+public:
+  Bin() = default;
+  template <class Iterator>
+  Bin(Iterator firstEdge, Iterator lastEdge);
+  Bin(std::initializer_list<Segment<T>> edges);
+  Bin(const T& lowEdge, const T& upEdge);//mainly aimed for 1-D bins that are basically one Segment
   bool operator<(const Bin<T>& other) const;
-  bool contains(T value) const;//excludes binUpEdge
-  void setEdges(T binLowEdge, T binUpEdge);
-  T getBinCenter() const;
-  T getBinLowEdge() const;
-  T getBinUpEdge() const;
-  T getBinWidth() const;
+  unsigned getDimension() const;
+  Segment<T> getEdge(unsigned k) const;
+  Point<T> getCenter() const;
+  bool contains(const Point<T>& point) const;
+  void addEdge(unsigned k, const Segment<T>& edge);
+  void addEdge(const Segment<T>& edge);
+  void emplaceEdge(const T& lowEdge, const T& upEdge);
   
 };
 
 template <class T>
 std::ostream& operator<<(std::ostream& output, const Bin<T>& bin){
   
-  output<<"["<<std::setw(4)<<std::internal<<bin.getBinLowEdge()<<", "<<std::setw(4)<<std::internal<<bin.getBinUpEdge()<<"]";
+  for(unsigned k = 0; k < bin.getDimension() - 1; ++k) output<<bin.getEdge(k)<<" x ";
+  output<<bin.getEdge(bin.getDimension() -1);
   return output;
   
 }
 
 template <class T>
-Bin<T>::Bin(T binLowEdge, T binUpEdge):binLowEdge(binLowEdge),binUpEdge(binUpEdge){
+template <class Iterator>
+Bin<T>::Bin(Iterator firstEdge, Iterator lastEdge):edges(firstEdge, lastEdge){
+  
+}
+
+template <class T>
+Bin<T>::Bin(std::initializer_list< Segment< T > > edges):Bin(edges.begin(),edges.end()){
+  
+}
+
+template <class T>
+Bin<T>::Bin(const T& lowEdge, const T& upEdge):edges({Segment<T>(lowEdge, upEdge)}){
   
 }
 
 template <class T>
 bool Bin<T>::operator<(const Bin<T>& other) const{
   
-  return getBinCenter() < other.getBinCenter();
+  for(auto it = std::make_pair(edges.begin(), other.edges.begin()); it.first != edges.end() && it.second != other.edges.end(); ++it.first, ++it.second){
+    
+    if(it.first->getCenter() < it.second->getCenter()) return true;//if x1 < x2 then Bin1 < Bin2
+    else if(it.first->getCenter() > it.second->getCenter()) return false;//if x1 > x2 then Bin1 !< Bin2
+    
+  }
+    
+  return false;
 
 }
 
 template <class T>
-bool Bin<T>::contains(T value) const{
+unsigned Bin<T>::getDimension() const{
+
+  return edges.size();
   
-  if(value >= binLowEdge && value < binUpEdge) return true;
-  else return false;
+}
+
+template <class T>
+Segment< T > Bin<T>::getEdge(unsigned k) const{
+
+  try{
+    
+    return edges.at(k);
+    
+  }
+  catch(std::out_of_range& e){
+    
+    std::cout<<"Error: Bin of dimension "<<this->getDimension()<<" has no "<<k<<" edge\nReturning default edge"<<std::endl;
+    return Segment<T>{};
+    
+  }
+  
+}
+
+template <class T>
+Point< T > Bin<T>::getCenter() const{
+
+  Point<T> center{};
+  for(const auto& edge : edges) center.addCoordinate(edge.getCenter());
+  return center;
+  
+}
+
+template <class T>
+bool Bin<T>::contains(const Point<T>& point) const{
+  
+  for(auto it = std::make_pair(edges.begin(), point.begin()); it.first != edges.end() && it.second != point.end(); ++it.first, ++it.second)
+    if(!it.first->contains(*it.second)) return false;
+  
+  return true;
 
 }
 
 template <class T>
-void Bin<T>::setEdges(T binLowEdge, T binUpEdge){
+void Bin<T>::addEdge(unsigned k, const Segment<T>& segment){
   
-  this->binLowEdge = binLowEdge;
-  this->binUpEdge = binUpEdge;
+  edges.insert(k, segment);
 
 }
 
 template <class T>
-T Bin<T>::getBinCenter() const{
+void Bin<T>::addEdge(const Segment<T>& segment){
   
-  return (binUpEdge + binLowEdge)*0.5;
+  edges.emplace_back(segment);
 
 }
 
 template <class T>
-T Bin<T>::getBinLowEdge() const{
+void Bin<T>::emplaceEdge(const T& lowEdge, const T& upEdge){
   
-  return binLowEdge;
-
-}
-
-template <class T>
-T Bin<T>::getBinUpEdge() const{
-  
-  return binUpEdge;
-
-}
-
-template <class T>
-T Bin<T>::getBinWidth() const{
-  
- return binUpEdge - binLowEdge;
+  addEdge(Segment<T>(lowEdge, upEdge));
 
 }
 
