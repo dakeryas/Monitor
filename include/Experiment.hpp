@@ -1,32 +1,36 @@
 #ifndef EXPERIMENT_H
 #define EXPERIMENT_H
 
-#include <map>
-#include "Bin.hpp"
+#include "Histogram.hpp"
 #include "Run.hpp"
 
 template <class T>
-class Experiment{//class meant to hold runs in the corresponding fraction bin
+class Experiment:Histogram<T,Run>{//class meant to hold runs in the corresponding configuration bin
 
   double distance1;//distance to reactor 1
   double distance2;// distance to reactor 2
   double backgroundRate;//background rate for all runs of the  map
-  std::map<Bin<T>, Run> runMap;//fraction and corresponding extended run containing the detected neutrino rate
+  std::map<Bin<T>, Run> runMap;//configuration and corresponding extended run containing the detected neutrino rate
 
 public:  
   Experiment(double distance1, double distance2, double backgroundRate = 0);
   double getDistance1() const;
   double getDistance2() const;
   double getBackgroundRate() const;
-  std::map<Bin<T>, Run> getRunMap() const;
+  typename std::map<Bin<T>, Run>::const_iterator begin() const;
+  typename std::map<Bin<T>, Run>::const_iterator end() const;
   void setDistance1(double  distance1) const;
   void setDistance2(double distance2) const;
   void setBackgroundRate(double backgroundRate) const;
+  unsigned getConfigurationSize() const;
+  unsigned getNumberOfChannels() const;
   void emplaceChannel(double binLowEdge, double binUpEdge) const;
   void addChannel(const Bin<T>& bin);
   template <class Iterator>
   void addChannels(Iterator begin, Iterator end);//copy channels pointed to from begin to end
-  void addRun(double fraction, Run run);//add the run to the corresponding fraction
+  template <class Container>
+  void addChannels(const Container& channels);//if iterable container
+  void addRun(const Point<T>& configuration, const Run& run);//add the run to the corresponding configuration
   void clearRuns();
   
 };
@@ -36,7 +40,8 @@ std::ostream& operator<<(std::ostream& output, const Experiment<T>& experiment){
   
   output.precision(4);
   
-  for(const auto& pair : experiment.getRunMap()) output<<pair.first<<std::setw(5)<<std::left<<" "
+  for(const auto& pair : experiment)
+    output<<pair.first<<std::setw(5)<<std::left<<" "
     <<"-->"<<std::setw(5)<<std::left<<" "<<std::setw(7)<<std::left<<pair.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate())
     <<"+/-"<<std::setw(2)<<std::left<<" "<<std::setw(5)<<std::left<<pair.second.getNeutrinoRateError(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate())
     <<"\n";
@@ -72,10 +77,32 @@ double Experiment<T>::getBackgroundRate() const{
 }
 
 template <class T>
-std::map< Bin<T>, Run > Experiment<T>::getRunMap() const{
+unsigned Experiment<T>::getConfigurationSize() const{
 
-  return runMap;
+  if(!runMap.empty()) return runMap.begin()->first.getDimension();
+  else return 0;
   
+}
+
+template <class T>
+unsigned Experiment<T>::getNumberOfChannels() const{
+
+  return runMap.size();
+  
+}
+
+template <class T>
+typename std::map<Bin<T>, Run>::const_iterator Experiment<T>::begin() const{
+  
+  return runMap.begin();
+
+}
+
+template <class T>
+typename std::map<Bin<T>, Run>::const_iterator Experiment<T>::end() const{
+  
+  return runMap.end();
+
 }
 
 
@@ -110,7 +137,7 @@ void Experiment<T>::emplaceChannel(double binLowEdge, double binUpEdge) const{
 template <class T>
 void Experiment<T>::addChannel(const Bin<T>& bin){
   
-  runMap.emplace(bin, Run());//default construct the Run to zero neutrinos and zero time
+  runMap.emplace(bin, Run{});//default construct the Run to zero neutrinos and zero time
 
 }
 
@@ -123,9 +150,22 @@ void Experiment<T>::addChannels(Iterator begin, Iterator end){
 }
 
 template <class T>
-void Experiment<T>::addRun(double fraction, Run run){
+template <class Container>
+void Experiment<T>::addChannels(const Container& channels){
+  
+  addChannels(channels.begin(), channels.end());
 
-  for(auto& pair : runMap) if(pair.first.contains(fraction)) runMap[pair.first] += run;
+}
+
+template <class T>
+void Experiment<T>::addRun(const Point<T>& configuration, const Run& run){
+
+  if(getConfigurationSize() == configuration.getDimension()){
+    
+    for(auto& pair : runMap) if(pair.first.contains(configuration)) runMap[pair.first] += run;
+    
+  }
+  else std::cout<<configuration<<" is not compatible with previous configurations of size "<<getConfigurationSize()<<std::endl;
   
 }
 
