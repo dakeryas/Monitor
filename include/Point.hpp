@@ -12,6 +12,7 @@ class Point {
   
 public:
   std::vector<T> coordinates;
+  Point() = default;
   template <class Iterator>
   Point(Iterator firstCoordinate, Iterator lastCoordinate);
   Point(std::initializer_list<T> coordinates);
@@ -19,8 +20,10 @@ public:
   typename std::vector<T>::const_iterator end() const;
   typename std::vector<T>::iterator begin() ;
   typename std::vector<T>::iterator end() ;
-  T getCoordinate(unsigned k) const;
+  const T& getCoordinate(unsigned k) const;
   unsigned getDimension() const;
+  void setCoordinate(unsigned k, const T& coordinate);
+  void addCoordinate(const T& coordinate);
   
 };
 
@@ -32,7 +35,7 @@ std::ostream& operator<<(std::ostream& output, const Point<T>& point){
   if(point.getDimension() != 0){
     
     for(auto it = point.begin(); it != point.end() - 1; ++it) output<<std::setw(4)<<std::internal<<*it<<", ";
-    output<<(point.end() -1);
+    output<<(*(point.end() -1));
     
   }
   
@@ -48,7 +51,7 @@ Point<T>::Point(Iterator firstCoordinate, Iterator lastCoordinate):coordinates(f
 }
 
 template <class T>
-Point<T>::Point(std::initializer_list<T> coordinates):Point(coordinates.begin, coordinates.end()){
+Point<T>::Point(std::initializer_list<T> coordinates):Point(coordinates.begin(), coordinates.end()){
 
 }
 
@@ -81,18 +84,9 @@ typename std::vector<T>::iterator Point<T>::end(){
 }
 
 template <class T>
-T Point<T>::getCoordinate(unsigned k) const{
+const T& Point<T>::getCoordinate(unsigned k) const{
 
-  try{
-    
-    return coordinates.at(k);
-    
-  }
-  catch(std::out_of_range& e){
-    
-    std::cout<<"Error: "<<*this<<"\n"<<" has no "<<k<<" dimension"<<std::endl;
-    
-  }
+  return coordinates.at(k);
   
 }
 
@@ -100,6 +94,20 @@ template <class T>
 unsigned Point<T>::getDimension() const{
   
   return coordinates.size();
+
+}
+
+template <class T>
+void Point<T>::setCoordinate(unsigned k, const T& coordinate){
+  
+  coordinates.at(k) = coordinate;
+
+}
+
+template <class T>
+void Point<T>::addCoordinate(const T& coordinate){
+  
+  coordinates.emplace_back(coordinate);
 
 }
 
