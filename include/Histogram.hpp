@@ -98,7 +98,13 @@ Histogram<T,K>& Histogram<T,K>::operator*=(const K& factor){
 template <class T, class K>
 Histogram<T,K>& Histogram<T,K>::operator/=(const K& factor){
 
-  return *this *= 1/factor;
+  if(factor != K{}) return *this *= 1/factor;
+  else{
+    
+    std::cout<<"Histogram division by "<<factor<<" not allowed!"<<std::endl;
+    return *this;
+    
+  }
   
 }
 
@@ -107,7 +113,12 @@ Histogram<T,K>& Histogram<T,K>::normalise(){
 
   K totalCounts = getTotalCounts();
   if(totalCounts != K{}) return *this /= getTotalCounts();
-  else return *this;
+  else{
+    
+    std::cout<<"Histogram has no counts: can't normalise!"<<std::endl;
+    return *this;
+    
+  }
   
 }
 
