@@ -21,14 +21,15 @@ public:
   typename std::map<Bin<T>,K>::const_iterator end() const;
   typename std::map<Bin<T>,K>::iterator begin();
   typename std::map<Bin<T>,K>::iterator end();
-  K getCount(const T& value) const;
+  K getCount(const Point<T>& point) const;
   K getCount(const Bin<T>& bin) const;
   K getTotalCounts() const;
-  const std::map<Bin<T>, K>& getCountMap() const;
+  unsigned getDimension() const;
+  unsigned getNumberOfChannels() const;
   void addChannel(const Bin<T>& bin);
   template <class Iterator>
   void addChannels(Iterator begin, Iterator end);//copy channels pointed to from begin to end
-  void addCount(const T& value);
+  void addCount(const Point<T>& point);
   void setCount(const Bin<T>& bin, const K& count);
   
 };
@@ -73,7 +74,8 @@ template <class T, class K>
 template <class Iterator>
 Histogram<T,K>::Histogram(Iterator firstBin, Iterator lastBin){
   
-  for(auto it = firstBin; it != lastBin; ++it) countMap[*it] = 0;
+  for(auto it = firstBin; it != lastBin; ++it)
+    if(it->getDimension() == firstBin->getDimension()) countMap[*it] = K{};
   
 }
 
@@ -136,9 +138,9 @@ typename std::map<Bin<T>,K>::iterator Histogram<T,K>::end(){
 }
 
 template <class T, class K>
-K Histogram<T,K>::getCount(const T& value) const{
+K Histogram<T,K>::getCount(const Point<T>& point) const{
   
-  for(auto& pair : countMap) if(pair.first.contains(value)) return pair.second;
+  for(auto& pair : countMap) if(pair.first.contains(point)) return pair.second;
   
 }
 
@@ -159,9 +161,25 @@ K Histogram<T,K>::getTotalCounts() const{
 }
 
 template <class T, class K>
+unsigned Histogram<T,K>::getDimension() const{
+
+  if(!countMap.empty()) return countMap.front().first().getDimension();
+  else return 0;
+  
+}
+
+template <class T, class K>
+unsigned Histogram<T,K>::getNumberOfChannels() const{
+
+  return countMap.size();
+  
+}
+
+template <class T, class K>
 void Histogram<T,K>::addChannel(const Bin<T>& bin){
   
-  countMap.emplace(bin, K{});//default construct K
+  if(getDimension() ==  bin.getDimension() || getDimension() == 0)
+    countMap.emplace(bin, K{});//default construct K
 
 }
 
@@ -174,9 +192,9 @@ void Histogram<T,K>::addChannels(Iterator begin, Iterator end){
 }
 
 template <class T, class K>
-void Histogram<T,K>::addCount(const T& value){
+void Histogram<T,K>::addCount(const Point<T>& point){
 
-  for(auto& pair : countMap) if(pair.first.contains(value)) pair.second += 1; 
+  for(auto& pair : countMap) if(pair.first.contains(point)) pair.second += 1; 
   
 }
 
