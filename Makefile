@@ -5,9 +5,9 @@ MAIN = monitor.cpp
 EXECUTABLE = $(patsubst %.cpp,%, $(MAIN))
 
 MAKEFLAGS := -j$(shell nproc)
-FLAGS := $(shell root-config --cflags)
-FLAGS += -I. -I$(IDIR)
-OPTFLAG = $(FLAGS) -Wall -Wextra -O3 -MMD -MP
+ROOTFLAGS := $(shell root-config --cflags)
+OPTFLAGS := -Wall -Wextra -O3 -MMD -MP
+FLAGS = $(ROOTFLAGS) -I. -I$(IDIR) $(OPTFLAGS)
 
 LIBS :=  $(shell root-config --libs)
 LIBS += -lrt
@@ -21,19 +21,18 @@ DEPS = $(patsubst %.o,%.d, $(OBJS))
 
 all: $(EXECUTABLE)  
 
-debug:OPTFLAG = $(FLAGS) -Wall -Wextra -O0 -g
-debug:lib $(EXECUTABLE)
-
+debug: OPTFLAGS = -Wall -Wextra -O0 -g
+debug: all
 
 $(OBJS): | $(ODIR)
 $(ODIR):
 	mkdir -p $(ODIR)
 
 $(ODIR)/$(MAIN:.cpp=.o): $(MAIN)
-	$(CXX) $(OPTFLAG) -c -o $@ $<
+	$(CXX) $(FLAGS) -c -o $@ $<
 
 $(ODIR)/%.o:$(SDIR)/%.cpp $(IDIR)/%.hpp
-	$(CXX) $(OPTFLAG) -c -o $@ $<
+	$(CXX) $(FLAGS) -c -o $@ $<
 	
 $(EXECUTABLE):$(OBJS)
 	$(CXX) -o $@  $^ $(LIBS)
