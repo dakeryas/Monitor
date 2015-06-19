@@ -105,7 +105,9 @@ Histogram<T,K>& Histogram<T,K>::operator/=(const K& factor){
 template <class T, class K>
 Histogram<T,K>& Histogram<T,K>::normalise(){
 
-  return *this /= getTotalCounts();
+  K totalCounts = getTotalCounts();
+  if(totalCounts != K{}) return *this /= getTotalCounts();
+  else return *this;
   
 }
 
@@ -154,7 +156,7 @@ K Histogram<T,K>::getCount(const Bin<T>& bin) const{
 template <class T, class K>
 K Histogram<T,K>::getTotalCounts() const{
 
-  K totalCounts = 0;
+  K totalCounts{};
   for(const auto& pair : countMap) totalCounts += pair.second;
   return totalCounts;
   
