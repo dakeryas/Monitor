@@ -165,7 +165,7 @@ K Histogram<T,K>::getTotalCounts() const{
 template <class T, class K>
 unsigned Histogram<T,K>::getDimension() const{
 
-  if(!countMap.empty()) return countMap.front().first().getDimension();
+  if(!countMap.empty()) return countMap.begin()->first.getDimension();
   else return 0;
   
 }
