@@ -35,9 +35,12 @@ public:
   
 };
 
-std::ostream& operator<<(std::ostream& output, const Run& run){//for input masses in MeV sets the file into GeV
+std::ostream& operator<<(std::ostream& output, const Run& run){
 
-  output<<"Neutrinos = "<<run.getNumberOfNeutrinos()<<"\nTime = "<<run.getRunningTime()<<"\nSpentEnergy1 = "<<run.getSpentEnergy1()<<"\nSpentEnergy2 = "<<run.getSpentEnergy2();
+  output<<std::setw(13)<<std::left<<"Neutrinos"<<": "<<run.getNumberOfNeutrinos()
+    <<std::setw(14)<<std::left<<"\nLength"<<": "<<run.getRunningTime()
+    <<std::setw(14)<<std::left<<"\nSpentEnergy1"<<": "<<run.getSpentEnergy1()
+    <<std::setw(14)<<"\nSpentEnergy2"<<": "<<run.getSpentEnergy2();
   return output;
   
 }

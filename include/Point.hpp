@@ -18,8 +18,8 @@ public:
   Point(std::initializer_list<T> coordinates);
   typename std::vector<T>::const_iterator begin() const;
   typename std::vector<T>::const_iterator end() const;
-  typename std::vector<T>::iterator begin() ;
-  typename std::vector<T>::iterator end() ;
+  typename std::vector<T>::iterator begin();
+  typename std::vector<T>::iterator end();
   const T& getCoordinate(unsigned k) const;
   unsigned getDimension() const;
   void setCoordinate(unsigned k, const T& coordinate);
