@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <limits>
 #include "Particle.hpp"
 #include "Histogram.hpp"
 
@@ -108,13 +109,18 @@ double Run::getMeanSpentEnergy(double distance1, double distance2) const{
 
 double Run::getNeutrinoRate(double distance1, double distance2, double backgroundRate) const{
   
-  return (neutrinos.size() - backgroundRate * time)/getMeanSpentEnergy(distance1, distance2);
+  double meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
+  
+  if(meanSpentEnergy > 0) return (neutrinos.size() - backgroundRate * time)/getMeanSpentEnergy(distance1, distance2);
+  else return 0;
 
 }
 
 double Run::getNeutrinoRateError(double distance1, double distance2, double backgroundRate) const{
 
-  return sqrt(neutrinos.size() - backgroundRate * time)/getMeanSpentEnergy(distance1, distance2);
+  double meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
+  if(meanSpentEnergy > 0) return sqrt(neutrinos.size() - backgroundRate * time)/getMeanSpentEnergy(distance1, distance2);
+  else return std::numeric_limits<double>::infinity();
   
 }
 
