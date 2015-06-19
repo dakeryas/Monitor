@@ -9,8 +9,8 @@
 template <class T>
 class Point {
   
-public:
   std::vector<T> coordinates;
+public:
   Point() = default;
   template <class Iterator>
   Point(Iterator firstCoordinate, Iterator lastCoordinate);
