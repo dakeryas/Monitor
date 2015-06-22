@@ -14,7 +14,8 @@ public:
   Segment() = default;
   Segment(const T& lowEdge, const T& upEdge);
   bool operator<(const Segment<T>& other) const;
-  T operator/=(const T& divider) const;
+  template <class K>
+  T operator/=(const K& divider) const;
   bool contains(const T& value) const;//excludes upEdge
   void setEdges(const T& lowEdge, const T& upEdge);
   T getCenter() const;
@@ -32,8 +33,8 @@ std::ostream& operator<<(std::ostream& output, const Segment<T>& segment){
   
 }
 
-template <class T>
-T operator/(Segment<T> segment, const T& divider){
+template <class T, class K>
+T operator/(Segment<T> segment, const K& divider){
   
   return segment /= divider;
   
@@ -52,7 +53,8 @@ bool Segment<T>::operator<(const Segment<T>& other) const{
 }
 
 template <class T>
-T Segment<T>::operator/=(const T& divider) const{
+template <class K>
+T Segment<T>::operator/=(const K& divider) const{
   
   if(divider != T{}) return (upEdge - lowEdge)/divider;
   else throw std::invalid_argument("Trying to divide by '0' (or default constructor)");
