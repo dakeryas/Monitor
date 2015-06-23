@@ -1,11 +1,12 @@
 #ifndef EXPERIMENT_H
 #define EXPERIMENT_H
 
-#include "Histogram.hpp"
+#include <map>
+#include "Bin.hpp"
 #include "Run.hpp"
 
 template <class T>
-class Experiment:Histogram<T,Run>{//class meant to hold runs in the corresponding configuration bin
+class Experiment{//class meant to hold runs in the corresponding configuration bin
 
   double distance1;//distance to reactor 1
   double distance2;// distance to reactor 2
