@@ -16,6 +16,14 @@ public:
 };
 
 template <class T>
+std::ostream& operator<<(std::ostream& output, const Axis<T>& axis){
+  
+  output<<"["<<std::setw(4)<<std::internal<<axis.getLowEdge()<<", "<<std::setw(4)<<std::internal<<axis.getUpEdge()<<"] - "<<axis.getNumberOfDivisions();
+  return output;
+  
+}
+
+template <class T>
 Axis<T>::Axis(unsigned numberOfDivisions, const Segment<T>& segment):Segment<T>(segment),numberOfDivisions(numberOfDivisions){
 
 }
