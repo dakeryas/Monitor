@@ -65,8 +65,13 @@ namespace constants{
   
   double crossSection(double neutrinoEnergy){
     
-    double positronEnergy = neutrinoEnergy - mass::neutron + mass::proton;
-    return positronEnergy * std::sqrt(std::pow(positronEnergy, 2) - std::pow(mass::electron, 2));
+    if(neutrinoEnergy > (mass::neutron - mass::proton)){//if we pass the threshold
+      
+      double positronEnergy = neutrinoEnergy - mass::neutron + mass::proton;
+      return positronEnergy * std::sqrt(std::pow(positronEnergy, 2) - std::pow(mass::electron, 2));
+      
+    }
+    else return 0;//if the neutrino's energy is too low, the cross section is zero
     
   }
   
