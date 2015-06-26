@@ -32,7 +32,7 @@ public:
   template <class Container>
   void addChannels(const Container& channels);//if iterable container
   void addRun(const Point<T>& configuration, const Run& run);//add the run to the corresponding configuration
-  void clearRuns();
+  void clear();//deletes all channels and runs
   
 };
 
@@ -162,7 +162,7 @@ template <class T>
 void Experiment<T>::addRun(const Point<T>& configuration, const Run& run){
 
   if(getConfigurationSize() == configuration.getDimension()){
-    
+  
     for(auto& pair : runMap) if(pair.first.contains(configuration)) runMap[pair.first] += run;
     
   }
@@ -171,7 +171,7 @@ void Experiment<T>::addRun(const Point<T>& configuration, const Run& run){
 }
 
 template <class T>
-void Experiment<T>::clearRuns(){
+void Experiment<T>::clear(){
   
   runMap.clear();
 

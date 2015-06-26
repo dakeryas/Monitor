@@ -115,7 +115,7 @@ Histogram<T,K>& Histogram<T,K>::normalise(){
   if(totalCounts != K{}) return *this /= getTotalCounts();
   else{
     
-    std::cout<<"Histogram has no counts: can't normalise!"<<std::endl;
+    std::cout<<"Histogram has no counts: already normalised!"<<std::endl;
     return *this;
     
   }
