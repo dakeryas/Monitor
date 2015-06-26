@@ -2,6 +2,7 @@
 #define EXPERIMENT_H
 
 #include <map>
+#include <algorithm>
 #include "Bin.hpp"
 #include "Run.hpp"
 
@@ -33,6 +34,7 @@ public:
   void addChannels(const Container& channels);//if iterable container
   void addRun(const Point<T>& configuration, const Run& run);//add the run to the corresponding configuration
   void clear();//deletes all channels and runs
+  void slim();//removes all channels with no runs
   
 };
 
@@ -174,6 +176,19 @@ template <class T>
 void Experiment<T>::clear(){
   
   runMap.clear();
+
+}
+
+template <class T>
+void Experiment<T>::slim(){
+  
+  auto itDelete = std::find_if(runMap.begin(),runMap.end(),[](decltype(*runMap.begin())& pair){return pair.second == Run{};});
+  while(itDelete != runMap.end()){
+    
+    auto itPastGarbage = runMap.erase(itDelete);//delete element and return an iterator to element past the one deleted
+    itDelete = std::find_if(itPastGarbage,runMap.end(),[](decltype(*runMap.begin())& pair){return pair.second == Run{};});//start from the last deleted element for efficiency
+    
+  }
 
 }
 
