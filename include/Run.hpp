@@ -22,6 +22,7 @@ public:
   template <class Container>
   Run(const Container& neutrinos, double time, double power1, double power2);//for iterable containters
   Run& operator+=(const Run& other);
+  bool operator==(const Run& other);
   unsigned getNumberOfNeutrinos() const;
   double getRunningTime() const;
   double getSpentEnergy1() const;
@@ -74,6 +75,18 @@ Run& Run::operator+=(const Run& other){
   spentEnergy2 += other.spentEnergy2;
   
   return *this;
+
+}
+
+bool Run::operator==(const Run& other){
+  
+  for(auto it = std::make_pair(neutrinos.begin(), other.neutrinos.begin()); it.first != neutrinos.end() && it.second != other.neutrinos.end(); ++it.first, ++it.second)
+    if(it.first->getEnergy() != it.second->getEnergy()) return false;
+    
+  if(time != other.time) return false;
+  else if(spentEnergy1 != other.spentEnergy1) return false;  
+  else if(spentEnergy2 != other.spentEnergy2) return false;
+  else return true;
 
 }
 
