@@ -7,7 +7,7 @@
 #include <iomanip>
 
 template <class T>
-class Point {
+class Point{
   
   std::vector<T> coordinates;
 public:
@@ -40,6 +40,23 @@ std::ostream& operator<<(std::ostream& output, const Point<T>& point){
   
   output<<")";
   return output;
+  
+}
+
+template <class T, class Container>
+Container operator * (const Point<T>& weight, Container container){
+  
+  for(auto it = std::make_pair(weight.begin(), container.begin()); it.first != weight.end() && it.second != container.end(); ++it.first, ++it.second)
+    it.second *= it.first;
+  
+  return container;
+  
+}
+
+template <class T, class Container>
+Container operator * (Container container, const Point<T>& weight){
+  
+  return weight * container;
   
 }
 
