@@ -7,10 +7,16 @@ namespace constants{
   
   namespace distance{
     
-    const double L1 = 111520;//old value (used in the simulation)
-    const double L2 = 99855.9;//old value (used in the simulation)
-    const double squaredProduct = std::pow(L1*L2, 2);
+    const double L1 = 1115.20;//old value in meters (used in the simulation)
+    const double L2 = 998.559;//old value in meters (used in the simulation)
     const double product = L1*L2;
+    const double average = std::sqrt(product);
+    
+  }
+  
+  namespace mixing{
+    
+    const double th13 = 0.085; //DB at Moriond
     
   }
   
@@ -55,6 +61,12 @@ namespace constants{
     
   }
   
+  namespace squaredMass{
+    
+    const double delta31 = 2.38 * 1e-3;//eV squared
+    
+  }
+  
   void adaptUnits(double& runLenght, double& power1, double& power2){//convert values to days and GW
   
     runLenght *= time::secondToDay;
@@ -72,6 +84,13 @@ namespace constants{
       
     }
     else return 0;//if the neutrino's energy is too low, the cross section is zero
+    
+  }
+  
+  double oscillation(double neutrinoEnergy, double distance, double th13 = mixing::th13, double delta31 = squaredMass::delta31){//energy in MeV and distance in m
+    
+    
+    return 1 - std::pow(std::sin(2 * th13) * std::sin(1.27 * delta31 * distance / neutrinoEnergy), 2);
     
   }
   
