@@ -21,12 +21,12 @@ public:
   double getBackgroundRate() const;
   typename std::map<Bin<T>, Run>::const_iterator begin() const;
   typename std::map<Bin<T>, Run>::const_iterator end() const;
-  void setDistance1(double  distance1) const;
-  void setDistance2(double distance2) const;
-  void setBackgroundRate(double backgroundRate) const;
+  void setDistance1(double  distance1);
+  void setDistance2(double distance2);
+  void setBackgroundRate(double backgroundRate);
   unsigned getConfigurationSize() const;
   unsigned getNumberOfChannels() const;
-  void emplaceChannel(double binLowEdge, double binUpEdge) const;
+  void emplaceChannel(double binLowEdge, double binUpEdge);
   void addChannel(const Bin<T>& bin);
   template <class Iterator>
   void addChannels(Iterator begin, Iterator end);//copy channels pointed to from begin to end
@@ -110,28 +110,28 @@ typename std::map<Bin<T>, Run>::const_iterator Experiment<T>::end() const{
 
 
 template <class T>
-void Experiment<T>::setDistance1(double distance1) const{
+void Experiment<T>::setDistance1(double distance1){
   
   this->distance1 = distance1;
 
 }
 
 template <class T>
-void Experiment<T>::setDistance2(double distance2) const{
+void Experiment<T>::setDistance2(double distance2){
 
   this->distance2 = distance2;
   
 }
 
 template <class T>
-void Experiment<T>::setBackgroundRate(double backgroundRate) const{
+void Experiment<T>::setBackgroundRate(double backgroundRate){
   
   this->backgroundRate = backgroundRate;
 
 }
 
 template <class T>
-void Experiment<T>::emplaceChannel(double binLowEdge, double binUpEdge) const{
+void Experiment<T>::emplaceChannel(double binLowEdge, double binUpEdge){
 
   addChannel(Bin<T>(binLowEdge, binUpEdge));  
   
