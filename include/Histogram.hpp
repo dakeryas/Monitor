@@ -17,6 +17,7 @@ public:
   Histogram<T,K>& operator*=(const K& factor);
   Histogram<T,K>& operator/=(const K& factor);
   Histogram<T,K>& normalise();
+  Histogram<T,K>& shiftChannels(const Point<T>& shift);//shift all channels with 'shift'
   typename std::map<Bin<T>,K>::const_iterator begin() const;
   typename std::map<Bin<T>,K>::const_iterator end() const;
   typename std::map<Bin<T>,K>::iterator begin();
@@ -120,6 +121,15 @@ Histogram<T,K>& Histogram<T,K>::normalise(){
     
   }
   
+}
+
+template <class T, class K>
+Histogram<T,K>& Histogram<T,K>::shiftChannels(const Point<T>& point){
+  
+  for(auto& pair : countMap) pair.first.shift(point);
+  
+  return *this;
+
 }
 
 template <class T, class K>
