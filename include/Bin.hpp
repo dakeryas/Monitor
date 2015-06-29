@@ -1,7 +1,7 @@
 #ifndef BIN_H
 #define BIN_H
 
-#include "Segement.hpp"
+#include "Segment.hpp"
 
 template <class T>
 class Bin{
@@ -22,6 +22,7 @@ public:
   void addEdge(unsigned k, const Segment<T>& edge);
   void addEdge(const Segment<T>& edge);
   void emplaceEdge(const T& lowEdge, const T& upEdge);
+  Bin<T>& shift(const Point<T>& shift);
   
 };
 
@@ -126,6 +127,18 @@ void Bin<T>::emplaceEdge(const T& lowEdge, const T& upEdge){
   
   addEdge(Segment<T>(lowEdge, upEdge));
 
+}
+
+template <class T>
+Bin<T>& Bin<T>::shift(const Point<T>& shift){
+  
+  if(shift.getDimension() != getDimension()) std::cout<<"Warning: shifting bin with Point of wrong dimension"<<shift<<std::endl;
+  
+  for(auto it = std::make_pair(edges.begin(),shift.begin()); it.first != edges.end() && it.second != shift.end(); ++it.first, ++it.second)
+    it.first.shift(it.second);
+
+  return *this;
+  
 }
 
 #endif

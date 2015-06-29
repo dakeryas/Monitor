@@ -1,7 +1,7 @@
 #ifndef AXIS_H
 #define AXIS_H
 
-#include "Segement.hpp"
+#include "Segment.hpp"
 
 template <class T>
 class Axis: public Segment<T>{

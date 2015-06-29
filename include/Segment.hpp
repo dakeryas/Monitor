@@ -22,6 +22,7 @@ public:
   T getLowEdge() const;
   T getUpEdge() const;
   T getWidth() const;
+  Segment<T>& shift(const T& value);
   
 };
 
@@ -102,6 +103,16 @@ template <class T>
 T Segment<T>::getWidth() const{
   
  return upEdge - lowEdge;
+
+}
+
+template <class T>
+Segment<T>& Segment<T>::shift(const T& value){
+  
+  lowEdge -= value;
+  upEdge -= value;
+  
+  return *this;
 
 }
 
