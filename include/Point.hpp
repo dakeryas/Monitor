@@ -43,20 +43,15 @@ std::ostream& operator<<(std::ostream& output, const Point<T>& point){
   
 }
 
-template <class T, class Container>
-Container operator * (const Point<T>& weight, Container container){
+template <class T, class Iterator>
+typename std::iterator_traits<Iterator>::value_type weigh(const Point<T>& weight, Iterator containerBegin, Iterator containerEnd){//the container of K's contents with weight and return a weighed object of type K
   
-  for(auto it = std::make_pair(weight.begin(), container.begin()); it.first != weight.end() && it.second != container.end(); ++it.first, ++it.second)
-    it.second *= it.first;
+  typename std::iterator_traits<Iterator>::value_type weighed{};//get the type of the  objects pointed to by the Iterator class
   
-  return container;
+  for(auto it = std::make_pair(weight.begin(), containerBegin); it.first != weight.end() && it.second != containerEnd; ++it.first, ++it.second)
+    weighed += it.first * it.second;
   
-}
-
-template <class T, class Container>
-Container operator * (Container container, const Point<T>& weight){
-  
-  return weight * container;
+  return weighed;
   
 }
 
