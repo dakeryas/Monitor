@@ -23,7 +23,7 @@ public:
   Run(const Container& neutrinos, double time, double power1, double power2);//for iterable containters
   Run& operator+=(const Run& other);
   bool operator==(const Run& other);
-  unsigned getNumberOfNeutrinos() const;
+  unsigned getNumberOfCandidates() const;
   double getRunningTime() const;
   double getSpentEnergy1() const;
   double getSpentEnergy2() const;
@@ -39,7 +39,7 @@ public:
 
 std::ostream& operator<<(std::ostream& output, const Run& run){
 
-  output<<std::setw(13)<<std::left<<"Neutrinos"<<": "<<run.getNumberOfNeutrinos()
+  output<<std::setw(13)<<std::left<<"Neutrinos"<<": "<<run.getNumberOfCandidates()
     <<std::setw(14)<<std::left<<"\nLength"<<": "<<run.getRunningTime()
     <<std::setw(14)<<std::left<<"\nSpentEnergy1"<<": "<<run.getSpentEnergy1()
     <<std::setw(14)<<"\nSpentEnergy2"<<": "<<run.getSpentEnergy2();
@@ -90,7 +90,7 @@ bool Run::operator==(const Run& other){
 
 }
 
-unsigned Run::getNumberOfNeutrinos() const{
+unsigned Run::getNumberOfCandidates() const{
   
   return neutrinos.size();
 
@@ -132,7 +132,8 @@ double Run::getNeutrinoRate(double distance1, double distance2, double backgroun
 double Run::getNeutrinoRateError(double distance1, double distance2, double backgroundRate) const{
 
   double meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
-  if(meanSpentEnergy > 0) return sqrt(neutrinos.size() - backgroundRate * time)/getMeanSpentEnergy(distance1, distance2);
+  double numberOfNeutrinos = neutrinos.size() - backgroundRate * time;
+  if(meanSpentEnergy > 0 && numberOfNeutrinos > 0) return sqrt(numberOfNeutrinos)/getMeanSpentEnergy(distance1, distance2);
   else return std::numeric_limits<double>::infinity();
   
 }
