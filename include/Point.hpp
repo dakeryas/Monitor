@@ -49,7 +49,7 @@ typename std::iterator_traits<Iterator>::value_type weigh(const Point<T>& weight
   typename std::iterator_traits<Iterator>::value_type weighed{};//get the type of the  objects pointed to by the Iterator class
   
   for(auto it = std::make_pair(weight.begin(), containerBegin); it.first != weight.end() && it.second != containerEnd; ++it.first, ++it.second)
-    weighed += it.first * it.second;
+    weighed += (*it.first) * (*it.second);
   
   return weighed;
   
