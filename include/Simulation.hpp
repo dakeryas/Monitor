@@ -165,7 +165,7 @@ void Simulation<T,K>::applyCrossSection(){
 template <class T, class K>
 void Simulation<T,K>::shiftResultingSpectra(const T& shift){
   
-  for(auto pairHist : results)
+  for(auto& pairHist : results)
     pairHist.second.shiftChannels(Point<T>(shift));
 
 }

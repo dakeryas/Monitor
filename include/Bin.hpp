@@ -135,7 +135,7 @@ Bin<T>& Bin<T>::shift(const Point<T>& shift){
   if(shift.getDimension() != getDimension()) std::cout<<"Warning: shifting bin with Point of wrong dimension"<<shift<<std::endl;
   
   for(auto it = std::make_pair(edges.begin(),shift.begin()); it.first != edges.end() && it.second != shift.end(); ++it.first, ++it.second)
-    it.first.shift(it.second);
+    it.first->shift(*it.second);
 
   return *this;
   

@@ -109,8 +109,8 @@ T Segment<T>::getWidth() const{
 template <class T>
 Segment<T>& Segment<T>::shift(const T& value){
   
-  lowEdge -= value;
-  upEdge -= value;
+  lowEdge += value;
+  upEdge += value;
   
   return *this;
 

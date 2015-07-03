@@ -12,6 +12,7 @@ class Point{
   std::vector<T> coordinates;
 public:
   Point() = default;
+  Point(const T& coordinate);//constructor for 1D points
   template <class Iterator>
   Point(Iterator firstCoordinate, Iterator lastCoordinate);
   Point(std::initializer_list<T> coordinates);
@@ -53,6 +54,11 @@ typename std::iterator_traits<Iterator>::value_type weigh(const Point<T>& weight
   
   return weighed;
   
+}
+
+template <class T>
+Point<T>::Point(const T& coordinate):Point({coordinate}){
+
 }
 
 template <class T>
