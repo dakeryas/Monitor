@@ -36,6 +36,14 @@ std::ostream& operator<<(std::ostream& output, const Bin<T>& bin){
 }
 
 template <class T>
+Bin<T> shift(Bin<T> bin, const Point<T>& shift){
+  
+  bin.shift(shift);
+  return bin;
+  
+}
+
+template <class T>
 template <class Iterator>
 Bin<T>::Bin(Iterator firstEdge, Iterator lastEdge):edges(firstEdge, lastEdge){
   

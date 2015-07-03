@@ -42,6 +42,15 @@ T operator/(Segment<T> segment, const K& divider){
 }
 
 template <class T>
+Segment<T> shift(Segment<T> segment, const T& value){//returns a segment shifted from 'value'
+  
+  segment.shift(value);
+  return segment;
+  
+}
+
+
+template <class T>
 Segment<T>::Segment(const T& lowEdge, const T& upEdge):lowEdge(lowEdge),upEdge(upEdge){
   
 }

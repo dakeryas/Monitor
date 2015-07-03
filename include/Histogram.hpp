@@ -126,7 +126,9 @@ Histogram<T,K>& Histogram<T,K>::normalise(){
 template <class T, class K>
 Histogram<T,K>& Histogram<T,K>::shiftChannels(const Point<T>& point){
   
-  for(auto& pair : countMap) pair.first.shift(point);
+  std::map<Bin<T>,K> shiftedMap;//we cannot modify the keys of a map, so create a new map
+  for(const auto& pair : countMap) shiftedMap[shift(pair.first,point)] = pair.second;//shift the bins before inserting the key in the map
+  std::swap(countMap, shiftedMap);//update countMap
   
   return *this;
 
