@@ -25,12 +25,14 @@ public:
   void setAverageDistance(double averageDistance);
   void setTheta13(double theta13);
   void setDelta13(double delta31);
-  template <class Iterator>  
+  template <class Iterator>
   void setReferenceSpectra(Iterator beginReferenceSpectra, Iterator endReferenceSpectra);
   void setReferenceSpectra(std::initializer_list<Histogram<T,K>> referenceSpectra);
-  void simulateToMatch(const Experiment<T>& experiment);
+  void build(const Experiment<T>& experiment);//build the reference results according to the configrations of the experiment
   void applyOscillation();
   void applyCrossSection();
+  void scaleCountsTo(const Experiment<T>& experiment);//normalise each spectrum in results to the rate obtained for the corresponding configration in the experiment
+  void simulateToMatch(const Experiment<T>& experiment);//apply the oscillation, the cross section, and normalise to the data rates
   void shiftResultingSpectra(const T& shift);//shift all histograms in 'results' by 'shift'
   
 };
@@ -130,18 +132,11 @@ void Simulation<T,K>::setReferenceSpectra(std::initializer_list<Histogram<T,K>> 
 }
 
 template <class T, class K>
-void Simulation<T,K>::simulateToMatch(const Experiment<T>& experiment){
+void Simulation<T,K>::build(const Experiment< T >& experiment){
   
-  double neutrinoRate{};
-  
-  for(const auto& pairBin : experiment){
-    
-    neutrinoRate = pairBin.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate());
-    Histogram<T,K> spectrum = weigh(pairBin.first.getCenter(), referenceSpectra.begin(), referenceSpectra.end());//weigh reference spectra with the composition
-    results[pairBin.first] = neutrinoRate * spectrum.normalise();
-    
-  }
-  
+  for(const auto& pairBin : experiment)
+    results[pairBin.first] = weigh(pairBin.first.getCenter(), referenceSpectra.begin(), referenceSpectra.end());//weigh reference spectra with the composition
+
 }
 
 template <class T, class K>
@@ -159,6 +154,24 @@ void Simulation<T,K>::applyCrossSection(){
   for(auto& pairHist : results)
     for(auto& pairBin : pairHist.second)
       pairBin.second *= constants::crossSection(pairBin.first.getEdge(0).getCenter());//binContent * crossSection(binCenter)
+  
+}
+
+template <class T, class K>
+void Simulation<T,K>::scaleCountsTo(const Experiment<T>& experiment){
+
+  for(const auto& pairBin : experiment)
+    results[pairBin.first].scaleCountsTo(pairBin.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate()));
+  
+}
+
+template <class T, class K>
+void Simulation<T,K>::simulateToMatch(const Experiment<T>& experiment){
+  
+  build(experiment);
+  applyOscillation();
+  applyCrossSection();
+  scaleCountsTo(experiment);
   
 }
 
