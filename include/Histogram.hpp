@@ -15,7 +15,9 @@ public:
   Histogram(Iterator firstBin, Iterator lastBin);
   Histogram<T,K>& operator+=(const Histogram<T,K>& other);
   Histogram<T,K>& operator*=(const K& factor);
+  Histogram<T,K>& operator*=(const Histogram<T,K>& multiplier);
   Histogram<T,K>& operator/=(const K& factor);
+  Histogram<T,K>& operator/=(const Histogram<T,K>& divider);
   Histogram<T,K>& normalise();
   Histogram<T,K>& scaleCountsTo(const K& newNorm);
   Histogram<T,K>& shiftChannels(const Point<T>& shift);//shift all channels with 'shift'
@@ -66,9 +68,23 @@ Histogram<T,K> operator*(const K& factor, Histogram<T,K> histogram){
 }
 
 template <class T, class K>
+Histogram<T,K> operator*(Histogram<T,K> histogram1, const Histogram<T,K>& histogram2){
+  
+  return histogram1 *= histogram2;
+  
+}
+
+template <class T, class K>
 Histogram<T,K> operator/(Histogram<T,K> histogram, const K& factor){
   
   return histogram /= factor;
+  
+}
+
+template <class T, class K>
+Histogram<T,K> operator/(Histogram<T,K> histogram1, const Histogram<T,K>& histogram2){
+  
+  return histogram1 /= histogram2;
   
 }
 
@@ -98,6 +114,15 @@ Histogram<T,K>& Histogram<T,K>::operator*=(const K& factor){
 }
 
 template <class T, class K>
+Histogram<T,K>& Histogram<T,K>::operator*=(const Histogram<T,K>& multiplier){
+
+  for(auto itPair = std::make_pair(begin(),multiplier.begin()); itPair.first != end() && itPair.second != multiplier.end(); ++itPair.first, ++itPair.second)
+    itPair.first->second *= itPair.second->second; 
+  return *this;
+  
+}
+
+template <class T, class K>
 Histogram<T,K>& Histogram<T,K>::operator/=(const K& factor){
 
   if(factor != K{}) return *this *= 1/factor;
@@ -107,6 +132,22 @@ Histogram<T,K>& Histogram<T,K>::operator/=(const K& factor){
     return *this;
     
   }
+  
+}
+
+template <class T, class K>
+Histogram<T,K>& Histogram<T,K>::operator/=(const Histogram<T,K>& divider){
+
+  K zero{};
+  
+  for(auto itPair = std::make_pair(begin(),divider.begin()); itPair.first != end() && itPair.second != divider.end(); ++itPair.first, ++itPair.second){
+    
+    if(itPair.second->second != zero) itPair.first->second /= itPair.second->second;
+    else std::cout<<"Histogram division by "<<zero<<" not allowed!"<<std::endl;
+    
+  }
+    
+  return *this;
   
 }
 
