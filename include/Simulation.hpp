@@ -21,6 +21,7 @@ public:
   double getTheta13() const;
   double getDelta31() const;
   unsigned getAdmissbleConfigurationSize() const;
+  const Histogram<T,K>& getResulingSpectrum(const Point<T>& configration) const;//get the spectrum from 'results' whose corresponding bin contains the 'configuration'
   const std::map<Bin<T>, Histogram<T,K>>& getResults() const;
   void setAverageDistance(double averageDistance);
   void setTheta13(double theta13);
@@ -85,6 +86,20 @@ template <class T, class K>
 unsigned Simulation<T,K>::getAdmissbleConfigurationSize() const{
 
   return referenceSpectra.size();
+  
+}
+
+template <class T, class K>
+const Histogram<T,K>& Simulation<T,K>::getResulingSpectrum(const Point<T>& configuration) const{
+  
+  auto it = std::find_if(results.begin(), results.end(),[&](decltype(*results.begin())& pairHist){return pairHist.first.contains(configuration);});
+  if(it != results.end()) return it->second;
+  else{
+    
+    std::cout<<"No simulated spectrum matches: "<<configuration<<"\n=> Returning first result\n";
+    return results.begin()->second;
+    
+  }
   
 }
 
