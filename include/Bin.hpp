@@ -18,6 +18,8 @@ public:
   unsigned getDimension() const;
   Segment<T> getEdge(unsigned k) const;
   Point<T> getCenter() const;
+  void setDimension(unsigned k);//keeps the old edges
+  void clear();//strips the bin of all its edges
   bool contains(const Point<T>& point) const;
   void addEdge(unsigned k, const Segment<T>& edge);
   void addEdge(const Segment<T>& edge);
@@ -104,6 +106,20 @@ Point< T > Bin<T>::getCenter() const{
   for(const auto& edge : edges) center.addCoordinate(edge.getCenter());
   return center;
   
+}
+
+template <class T>
+void Bin<T>::setDimension(unsigned k){
+  
+  edges.resize(k);
+
+}
+
+template <class T>
+void Bin<T>::clear(){
+  
+  setDimension(0);
+
 }
 
 template <class T>
