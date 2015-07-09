@@ -26,6 +26,11 @@ public:
   void setBackgroundRate(double backgroundRate);
   unsigned getConfigurationSize() const;
   unsigned getNumberOfChannels() const;
+  const Run& getRun(const Point<T>& configuration) const;//get run that corresponds
+  template <class BinType, class ValueType, class Iterator>
+  Histogram<BinType, ValueType> getNeutrinoSpectrum(const Point<T>& configuration, Iterator firstBin, Iterator lastBin) const;
+  template <class BinType, class ValueType, class Container>
+  Histogram<BinType, ValueType> getNeutrinoSpectrum(const Point<T>& configuration, const Container& bins) const;
   void emplaceChannel(double binLowEdge, double binUpEdge);
   void addChannel(const Bin<T>& bin);
   template <class Iterator>
@@ -95,6 +100,36 @@ unsigned Experiment<T>::getNumberOfChannels() const{
 }
 
 template <class T>
+const Run& Experiment<T>::getRun(const Point<T>& configuration) const{
+
+  auto it = std::find_if(runMap.begin(), runMap.end(),[&](decltype(*runMap.begin())& pairRun){return pairRun.first.contains(configuration);});
+  if(it != runMap.end()) return it->second;
+  else{
+    
+    std::cout<<"No run matches: "<<configuration<<"\n=> Returning first run\n";
+    return runMap.begin()->second;
+    
+  }
+  
+}
+
+template <class T>
+template <class BinType, class ValueType, class Iterator>
+Histogram<BinType, ValueType> Experiment<T>::getNeutrinoSpectrum(const Point<T>& configuration, Iterator firstBin, Iterator lastBin) const{
+
+  return getRun(configuration).template getScaledNeutrinoSpectrum<BinType,ValueType>(distance1, distance2, backgroundRate, firstBin, lastBin);
+  
+}
+
+template <class T>
+template <class BinType, class ValueType, class Container>
+Histogram<BinType, ValueType> Experiment<T>::getNeutrinoSpectrum(const Point<T>& configuration, const Container& container) const{
+
+  return getNeutrinoSpectrum<BinType,ValueType>(configuration, container.begin(), container.end());
+  
+}
+
+template <class T>
 typename std::map<Bin<T>, Run>::const_iterator Experiment<T>::begin() const{
   
   return runMap.begin();
@@ -107,7 +142,6 @@ typename std::map<Bin<T>, Run>::const_iterator Experiment<T>::end() const{
   return runMap.end();
 
 }
-
 
 template <class T>
 void Experiment<T>::setDistance1(double distance1){

@@ -34,6 +34,10 @@ public:
   Histogram<T,K> getNeutrinoSpectrum(Iterator firstBin, Iterator lastBin) const;
   template <class T, class K, class Container>
   Histogram<T,K> getNeutrinoSpectrum(const Container& bins) const;
+  template <class T, class K, class Iterator>
+  Histogram<T,K> getScaledNeutrinoSpectrum(double distance1, double distance2, double backgroundRate, Iterator firstBin, Iterator lastBin) const;
+  template <class T, class K, class Container>
+  Histogram<T,K> getScaledNeutrinoSpectrum(double distance1, double distance2, double backgroundRate, const Container& bins) const;
   
 };
 
@@ -66,5 +70,19 @@ Histogram<T,K> Run::getNeutrinoSpectrum(const Container& bins) const{
   
 }
 
+template <class T, class K, class Iterator>
+Histogram<T,K> Run::getScaledNeutrinoSpectrum(double distance1, double distance2, double backgroundRate, Iterator firstBin, Iterator lastBin) const{
+  
+  auto histogram = getNeutrinoSpectrum<T,K>(firstBin, lastBin);
+  return histogram.scaleCountsTo(getNeutrinoRate(distance1, distance2, backgroundRate));
+  
+}
+
+template <class T, class K, class Container>
+Histogram<T,K> Run::getScaledNeutrinoSpectrum(double distance1, double distance2, double backgroundRate, const Container& bins) const{
+  
+  return getScaledNeutrinoSpectrum<T,K>(distance1, distance2, backgroundRate, bins.begin(), bins.end());
+  
+}
 
 #endif
