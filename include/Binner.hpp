@@ -43,6 +43,7 @@ void Binner<T>::prepare(){
   unsigned totalNumberOfBins = 1;
   for(const auto& axis : axes) totalNumberOfBins *= axis.getNumberOfDivisions();
   bins.resize(totalNumberOfBins);
+  for(auto& bin : bins) bin.setDimension(axes.size());
   
   for(unsigned k = 0; k < axes.size() - 1; ++k) multiplier.at(k+1) *= axes.at(k).getNumberOfDivisions() * multiplier.at(k);//the first multiplier should be 1
   
@@ -67,7 +68,7 @@ void Binner<T>::fillBins(unsigned rank){
       currentIndices.at(rank) = k;//update indices
       
       for(unsigned i = 0; i < axes.size(); ++i)//build all edges for current bin
-	bins.at(getGlobalIndex()).emplaceEdge(axes.at(i).getLowEdge() + currentIndices.at(i)*axes.at(i).getSpacing(), axes.at(i).getLowEdge() + (currentIndices.at(i)+1)*axes.at(i).getSpacing());
+	bins.at(getGlobalIndex()).setEdge(i, axes.at(i).getLowEdge() + currentIndices.at(i)*axes.at(i).getSpacing(), axes.at(i).getLowEdge() + (currentIndices.at(i)+1)*axes.at(i).getSpacing());
       
     }
     
@@ -112,7 +113,7 @@ const std::vector<Bin<T>>& Binner<T>::getBins() const{
 
 template <class T>
 const std::vector<Bin<T>>& Binner<T>::generateBinning(){
-  
+
   fillBins(0);//start at rank 0
   return getBins();
   
@@ -121,7 +122,7 @@ const std::vector<Bin<T>>& Binner<T>::generateBinning(){
 template <class T>
 template <class Iterator>
 void Binner<T>::setAxes(Iterator beginAxis, Iterator endAxis){
-  
+
   axes.assign(beginAxis,endAxis);
   currentIndices.assign(axes.size(), 0);
   multiplier.assign(axes.size(), 1);
@@ -138,9 +139,9 @@ void Binner<T>::setAxes(std::initializer_list< Axis< T > > axes){
 
 template <class T>
 void Binner<T>::setAxes(unsigned numberOfDivisions, const T& lowEdge, const T& upEdge){
-  
-  setAxes({Axis<T>(numberOfDivisions, lowEdge, upEdge)});
 
+  setAxes({Axis<T>(numberOfDivisions, lowEdge, upEdge)});
+  
 }
 
 #endif
