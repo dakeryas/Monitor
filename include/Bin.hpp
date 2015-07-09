@@ -21,9 +21,12 @@ public:
   void setDimension(unsigned k);//keeps the old edges
   void clear();//strips the bin of all its edges
   bool contains(const Point<T>& point) const;
-  void addEdge(unsigned k, const Segment<T>& edge);
-  void addEdge(const Segment<T>& edge);
-  void emplaceEdge(const T& lowEdge, const T& upEdge);
+  template <class... Args>
+  void emplaceEdge(unsigned k, Args&&... args);
+  template <class... Args>
+  void emplaceBackEdge(Args&&... args);
+  void setEdge(unsigned k, const Segment<T>& edge);
+  void setEdge(unsigned k, const T& lowEdge, const T& upEdge);
   Bin<T>& shift(const Point<T>& shift);
   
 };
@@ -133,24 +136,43 @@ bool Bin<T>::contains(const Point<T>& point) const{
 }
 
 template <class T>
-void Bin<T>::addEdge(unsigned k, const Segment<T>& segment){
+template <class... Args>
+void Bin<T>::emplaceEdge(unsigned k, Args&&... args){
   
-  edges.insert(k, segment);
+  if(k > edges.size()) std::cout<<"Error: Bin of dimension "<<this->getDimension()<<" cannot add a "<<k<<" edge\nEdge not added"<<std::endl;
+  else edges.emplace(edges.begin() + k, std::forward<Args>(args)...);
 
 }
 
 template <class T>
-void Bin<T>::addEdge(const Segment<T>& segment){
+template <class... Args>
+void Bin<T>::emplaceBackEdge(Args&&... args){
   
-  edges.emplace_back(segment);
+  emplaceEdge(edges.size(), std::forward<Args>(args)...);
 
 }
 
 template <class T>
-void Bin<T>::emplaceEdge(const T& lowEdge, const T& upEdge){
-  
-  addEdge(Segment<T>(lowEdge, upEdge));
+void Bin<T>::setEdge(unsigned k, const Segment<T>& edge){
 
+  try{
+    
+    edges.at(k) = edge;
+    
+  }
+  catch(std::out_of_range& e){
+    
+    std::cout<<"Error: Bin of dimension "<<this->getDimension()<<" has no "<<k<<" edge\nEdge not set"<<std::endl;
+    
+  }
+  
+}
+
+template <class T>
+void Bin<T>::setEdge(unsigned k, const T& lowEdge, const T& upEdge){
+
+  setEdge(k, Segment<T>(lowEdge, upEdge));
+  
 }
 
 template <class T>
