@@ -21,6 +21,7 @@ public:
   Histogram<T,K>& normalise();
   Histogram<T,K>& scaleCountsTo(const K& newNorm);
   Histogram<T,K>& shiftChannels(const Point<T>& shift);//shift all channels with 'shift'
+  Histogram<T,K>& integrateDimension(unsigned dimensionToRemove);//integrate the counts over 'dimensionToRemove'
   typename std::map<Bin<T>,K>::const_iterator begin() const;
   typename std::map<Bin<T>,K>::const_iterator end() const;
   typename std::map<Bin<T>,K>::iterator begin();
@@ -178,11 +179,22 @@ template <class T, class K>
 Histogram<T,K>& Histogram<T,K>::shiftChannels(const Point<T>& point){
   
   std::map<Bin<T>,K> shiftedMap;//we cannot modify the keys of a map, so create a new map
-  for(const auto& pair : countMap) shiftedMap[shift(pair.first,point)] = pair.second;//shift the bins before inserting the key in the map
+  for(const auto& pair : countMap) shiftedMap[shift(pair.first, point)] = pair.second;//shift the bins before inserting the key in the map
   std::swap(countMap, shiftedMap);//update countMap
   
   return *this;
 
+}
+
+template <class T, class K>
+Histogram<T,K>& Histogram<T,K>::integrateDimension(unsigned dimensionToRemove){
+
+  std::map<Bin<T>, K> integratedMap;
+  for(auto& pair : countMap) integratedMap[compact(pair.first, dimensionToRemove)] += pair.second;//compact the bin add the content of the old bin to the new map at the compacted bin
+  std::swap(countMap, integratedMap);//update countMap
+ 
+  return *this;
+  
 }
 
 template <class T, class K>

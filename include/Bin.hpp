@@ -28,6 +28,7 @@ public:
   void setEdge(unsigned k, const Segment<T>& edge);
   void setEdge(unsigned k, const T& lowEdge, const T& upEdge);
   Bin<T>& shift(const Point<T>& shift);
+  Bin<T>& compact(unsigned dimensionToRemove);
   
 };
 
@@ -44,6 +45,14 @@ template <class T>
 Bin<T> shift(Bin<T> bin, const Point<T>& shift){
   
   bin.shift(shift);
+  return bin;
+  
+}
+
+template <class T>
+Bin<T> compact(Bin<T> bin, unsigned dimensionToRemove){
+  
+  bin.compact(dimensionToRemove);
   return bin;
   
 }
@@ -186,5 +195,14 @@ Bin<T>& Bin<T>::shift(const Point<T>& shift){
   return *this;
   
 }
+
+template <class T>
+Bin<T>& Bin<T>::compact(unsigned dimensionToRemove){
+  
+  if(dimensionToRemove < edges.size()) edges.erase(edges.begin() + dimensionToRemove);
+  return *this;
+
+}
+
 
 #endif

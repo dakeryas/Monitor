@@ -31,6 +31,8 @@ public:
   Histogram<BinType, ValueType> getNeutrinoSpectrum(const Point<T>& configuration, Iterator firstBin, Iterator lastBin) const;
   template <class BinType, class ValueType, class Container>
   Histogram<BinType, ValueType> getNeutrinoSpectrum(const Point<T>& configuration, const Container& bins) const;
+  template <class BinType, class ValueType>
+  Histogram<BinType, ValueType> getRateHistogram() const;
   void emplaceChannel(double binLowEdge, double binUpEdge);
   void addChannel(const Bin<T>& bin);
   template <class Iterator>
@@ -127,6 +129,16 @@ Histogram<BinType, ValueType> Experiment<T>::getNeutrinoSpectrum(const Point<T>&
 
   return getNeutrinoSpectrum<BinType,ValueType>(configuration, container.begin(), container.end());
   
+}
+
+template <class T>
+template <class BinType, class ValueType>
+Histogram<BinType, ValueType> Experiment<T>::getRateHistogram() const{
+
+  Histogram<BinType, ValueType> rate;
+  for(const auto& pair : runMap) rate.setCount(pair.first, pair.second.getNeutrinoRate(distance1, distance2, backgroundRate));
+  return rate;
+
 }
 
 template <class T>
