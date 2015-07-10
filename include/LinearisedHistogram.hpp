@@ -22,6 +22,7 @@ namespace Converter{
       LinearisedHistogram(const Histogram<T,K>& histogram);
       const std::vector<std::vector<T>>& getAxes() const;
       const std::vector<T>& getAxis(unsigned k) const;
+      unsigned getNumberOfBins(unsigned axisNumber) const;
       const std::vector<K>& getValues() const;
       const K& getValue(unsigned k) const;
       void linearise(const Histogram<T,K>& histogram);
@@ -71,7 +72,15 @@ namespace Converter{
       return axes.at(k);
       
     }
-
+    
+    template <class T, class K>
+    unsigned LinearisedHistogram<T,K>::getNumberOfBins(unsigned k) const{
+      
+      if(axes.size() > 1) return axes.at(k).size() -1;
+      else return 0;
+      
+    }
+    
     template <class T, class K>
     const std::vector<K>& LinearisedHistogram<T,K>::getValues() const{
 
@@ -83,7 +92,7 @@ namespace Converter{
     const K& LinearisedHistogram<T,K>::getValue(unsigned k) const{
 
       try{
-	
+
 	return values.at(k);
 	
       }
