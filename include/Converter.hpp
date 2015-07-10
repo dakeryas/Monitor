@@ -40,7 +40,7 @@ namespace Converter{
 	case 1:{
 	  
 	  std::vector<T> binEdgesX(binEdgesSets[0].begin(), binEdgesSets[0].end());
-	  rootHistogram = new TH1D("","", binEdgesX.size() + 1, binEdgesX.data());
+	  rootHistogram = new TH1D("","", binEdgesX.size() - 1, binEdgesX.data());
 	  for(unsigned i = 0; i < binEdgesX.size(); ++i) rootHistogram->SetBinContent(i, values.at(i));
 	  
 	}
@@ -49,7 +49,7 @@ namespace Converter{
 	  
 	  std::vector<T> binEdgesX(binEdgesSets[0].begin(), binEdgesSets[0].end());
 	  std::vector<T> binEdgesY(binEdgesSets[1].begin(), binEdgesSets[1].end());
-	  rootHistogram = new TH2D("","", binEdgesX.size() + 1, binEdgesX.data(), binEdgesY.size() + 1, binEdgesY.data());
+	  rootHistogram = new TH2D("","", binEdgesX.size() - 1, binEdgesX.data(), binEdgesY.size() - 1, binEdgesY.data());
 	  for(unsigned i = 0; i < binEdgesX.size(); ++i)
 	    for(unsigned j = 0; j < binEdgesY.size(); ++j)
 	      rootHistogram->SetBinContent(i, j, values.at(i + j * binEdgesX.size()));
@@ -61,11 +61,11 @@ namespace Converter{
 	  std::vector<T> binEdgesX(binEdgesSets[0].begin(), binEdgesSets[0].end());
 	  std::vector<T> binEdgesY(binEdgesSets[1].begin(), binEdgesSets[1].end());
 	  std::vector<T> binEdgesZ(binEdgesSets[2].begin(), binEdgesSets[2].end());
-	  rootHistogram = new TH3D("","", binEdgesX.size() + 1, binEdgesX.data(), binEdgesY.size() + 1, binEdgesY.data(), binEdgesZ.size() + 1, binEdgesZ.data());
+	  rootHistogram = new TH3D("","", binEdgesX.size() - 1, binEdgesX.data(), binEdgesY.size() - 1, binEdgesY.data(), binEdgesZ.size() - 1, binEdgesZ.data());
 	  for(unsigned i = 0; i < binEdgesX.size(); ++i)
 	    for(unsigned j = 0; j < binEdgesY.size(); ++j)
 	      for(unsigned k = 0; k < binEdgesZ.size(); ++k)
-		rootHistogram->SetBinContent(i, j, values.at(i + j * binEdgesX.size() + k * binEdgesY.size()));
+		rootHistogram->SetBinContent(i, j, k, values.at(i + j * binEdgesX.size() + k * binEdgesY.size()));
 	  
 	}
 	
