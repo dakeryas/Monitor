@@ -1,17 +1,15 @@
 #ifndef CONVERTER_H
 #define CONVERTER_H
 
-#include <vector>
-#include <set>
 #include "TGraphErrors.h"
 #include "TH1D.h"
 #include "TH2.h"
 #include "TH3D.h"
+#include "LinearisedHistogram.hpp"
 #include "Experiment.hpp"
-#include "Histogram.hpp"
 
 namespace Converter{
-
+  
   template <class T, class K>
   std::unique_ptr<TH1> toTH1(const Histogram<T,K>& histogram){
     
@@ -20,52 +18,33 @@ namespace Converter{
     auto dimension = histogram.getDimension();
     if(dimension > 0 && dimension < 4){
       
-      std::vector<std::set<T>> binEdgesSets(dimension);
-      std::vector<K> values;
-      for(const auto& pair : histogram){
-	
-	for(unsigned k = 0; k < dimension; ++k){
-	  
-	  binEdgesSets[k].insert(pair.first.getEdge(k).getLowEdge());//instert all edges not to miss the first or the last bin edge of the row
-	  binEdgesSets[k].insert(pair.first.getEdge(k).getUpEdge());
-	  
-	}
-	
-	values.emplace_back(pair.second);
-	
-      }
+      LinearisedHistogram<T,K> linHist(histogram);
       
       switch(dimension){
 	
 	case 1:{
 	  
-	  std::vector<T> binEdgesX(binEdgesSets[0].begin(), binEdgesSets[0].end());
-	  rootHistogram = new TH1D("","", binEdgesX.size() - 1, binEdgesX.data());
-	  for(unsigned i = 0; i < binEdgesX.size(); ++i) rootHistogram->SetBinContent(i, values.at(i));
+	  rootHistogram = new TH1D("","", linHist.getAxis(0).size() - 1, linHist.getAxis(0).data());
+	  for(unsigned i = 0; i < linHist.getAxis(0).size(); ++i) rootHistogram->SetBinContent(i, linHist.getValue(i));
 	  
 	}
 	  
 	case 2:{
 	  
-	  std::vector<T> binEdgesX(binEdgesSets[0].begin(), binEdgesSets[0].end());
-	  std::vector<T> binEdgesY(binEdgesSets[1].begin(), binEdgesSets[1].end());
-	  rootHistogram = new TH2D("","", binEdgesX.size() - 1, binEdgesX.data(), binEdgesY.size() - 1, binEdgesY.data());
-	  for(unsigned i = 0; i < binEdgesX.size(); ++i)
-	    for(unsigned j = 0; j < binEdgesY.size(); ++j)
-	      rootHistogram->SetBinContent(i, j, values.at(i + j * binEdgesX.size()));
+	  rootHistogram = new TH2D("","", linHist.getAxis(0).size() - 1, linHist.getAxis(0).data(), linHist.getAxis(1).size() - 1, linHist.getAxis(1).data());
+	  for(unsigned i = 0; i < linHist.getAxis(0).size(); ++i)
+	    for(unsigned j = 0; j < linHist.getAxis(1).size(); ++j)
+	      rootHistogram->SetBinContent(i, j, linHist.getValue(i + j * linHist.getAxis(0).size()));
 	  
 	}
 	
 	case 3:{
 	  
-	  std::vector<T> binEdgesX(binEdgesSets[0].begin(), binEdgesSets[0].end());
-	  std::vector<T> binEdgesY(binEdgesSets[1].begin(), binEdgesSets[1].end());
-	  std::vector<T> binEdgesZ(binEdgesSets[2].begin(), binEdgesSets[2].end());
-	  rootHistogram = new TH3D("","", binEdgesX.size() - 1, binEdgesX.data(), binEdgesY.size() - 1, binEdgesY.data(), binEdgesZ.size() - 1, binEdgesZ.data());
-	  for(unsigned i = 0; i < binEdgesX.size(); ++i)
-	    for(unsigned j = 0; j < binEdgesY.size(); ++j)
-	      for(unsigned k = 0; k < binEdgesZ.size(); ++k)
-		rootHistogram->SetBinContent(i, j, k, values.at(i + j * binEdgesX.size() + k * binEdgesY.size()));
+	  rootHistogram = new TH3D("","", linHist.getAxis(0).size() - 1, linHist.getAxis(0).data(), linHist.getAxis(1).size() - 1, linHist.getAxis(1).data(), linHist.getAxis(2).size() - 1, linHist.getAxis(2).data());
+	  for(unsigned i = 0; i < linHist.getAxis(0).size(); ++i)
+	    for(unsigned j = 0; j < linHist.getAxis(1).size(); ++j)
+	      for(unsigned k = 0; k < linHist.getAxis(2).size(); ++k)
+		rootHistogram->SetBinContent(i, j, k, linHist.getValue(i + j * linHist.getAxis(0).size() + k * linHist.getAxis(1).size()));
 	  
 	}
 	
