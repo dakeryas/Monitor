@@ -22,6 +22,7 @@ namespace Converter{
       LinearisedHistogram(const Histogram<T,K>& histogram);
       const std::vector<std::vector<T>>& getAxes() const;
       const std::vector<T>& getAxis(unsigned k) const;
+      const T* getAxisData(unsigned k) const;
       unsigned getNumberOfBins(unsigned axisNumber) const;
       const std::vector<K>& getValues() const;
       const K& getValue(unsigned k) const;
@@ -69,7 +70,16 @@ namespace Converter{
     
     template <class T, class K>
     const std::vector<T>& LinearisedHistogram<T,K>::getAxis(unsigned k) const{
+      
       return axes.at(k);
+      
+    }
+    
+    template <class T, class K>
+    const T* LinearisedHistogram<T,K>::getAxisData(unsigned k) const{
+      
+      if(k < axes.size()) return axes.at(k).data();
+      else return nullptr;
       
     }
     
@@ -98,6 +108,7 @@ namespace Converter{
       }
       catch(std::out_of_range& e){//if there are no entries in the original Histogram, it may mean that the counts where 'zero'
 	
+	std::cout<<"Error: No "<<k<<" value\nReturning defaultValue"<<std::endl;
 	return defaultValue;
 	
       }
