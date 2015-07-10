@@ -68,7 +68,6 @@ namespace Converter{
     
     template <class T, class K>
     const std::vector<T>& LinearisedHistogram<T,K>::getAxis(unsigned k) const{
-
       return axes.at(k);
       
     }

@@ -1,6 +1,7 @@
 #ifndef BIN_H
 #define BIN_H
 
+#include <algorithm>
 #include "Segment.hpp"
 
 template <class T>
@@ -29,6 +30,7 @@ public:
   void setEdge(unsigned k, const T& lowEdge, const T& upEdge);
   Bin<T>& shift(const Point<T>& shift);
   Bin<T>& compact(unsigned dimensionToRemove);
+  Bin<T>& compact(std::vector<unsigned> dimensionsToRemove);
   
 };
 
@@ -52,7 +54,14 @@ Bin<T> shift(Bin<T> bin, const Point<T>& shift){
 template <class T>
 Bin<T> compact(Bin<T> bin, unsigned dimensionToRemove){
   
-  bin.compact(dimensionToRemove);
+  return compact(bin, {dimensionToRemove});
+  
+}
+
+template <class T>
+Bin<T> compact(Bin<T> bin, std::vector<unsigned> dimensionsToRemove){
+  
+  bin.compact(dimensionsToRemove);
   return bin;
   
 }
@@ -199,10 +208,20 @@ Bin<T>& Bin<T>::shift(const Point<T>& shift){
 template <class T>
 Bin<T>& Bin<T>::compact(unsigned dimensionToRemove){
   
-  if(dimensionToRemove < edges.size()) edges.erase(edges.begin() + dimensionToRemove);
-  return *this;
+  return compact({dimensionToRemove});
 
 }
 
+template <class T>
+Bin<T>& Bin<T>::compact(std::vector<unsigned> dimensionsToRemove){
+  
+  std::sort(dimensionsToRemove.begin(), dimensionsToRemove.end(), [](unsigned i, unsigned j){return i > j;});//reverse sort
+  
+  for(const auto& dimensionToRemove : dimensionsToRemove)
+    if(dimensionToRemove < edges.size()) edges.erase(edges.begin() + dimensionToRemove);
+  
+  return *this;
+
+}
 
 #endif
