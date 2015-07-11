@@ -21,7 +21,7 @@ namespace Converter{
       LinearisedHistogram<T,K> linHist(histogram);
 	
       if(dimension == 1){
- 
+
 	rootHistogram = new TH1D("","", linHist.getNumberOfBins(0), linHist.getAxisData(0));
 	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i) rootHistogram->SetBinContent(i+1, linHist.getValue(i));
 	

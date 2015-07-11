@@ -23,12 +23,32 @@ namespace Converter{
       const std::vector<std::vector<T>>& getAxes() const;
       const std::vector<T>& getAxis(unsigned k) const;
       const T* getAxisData(unsigned k) const;
+      unsigned getNumberOfAxes() const;
       unsigned getNumberOfBins(unsigned axisNumber) const;
       const std::vector<K>& getValues() const;
       const K& getValue(unsigned k) const;
+      unsigned getNumberOfValues() const;
       void linearise(const Histogram<T,K>& histogram);
       
     };
+    
+    template <class T, class K>
+    std::ostream& operator<<(std::ostream& output, const LinearisedHistogram<T,K>& linHist){
+      
+      for(unsigned k = 0; k < linHist.getNumberOfValues(); ++k){
+	
+	for(unsigned axisNumber = 0; axisNumber < linHist.getNumberOfAxes() - 1; ++axisNumber)
+	  output<<linHist.getAxis(axisNumber).at(k)<<" x ";
+	
+	output<<linHist.getAxis(linHist.getNumberOfAxes() - 1).at(k);
+	
+	output<<std::setw(6)<<std::left<<" "<<"-->"<<std::setw(6)<<std::left<<" "<<std::setw(9)<<std::left<<linHist.getValue(k)<<"\n";
+	
+	
+      }
+      return output;
+      
+    }
     
     template <class T, class K>
     void LinearisedHistogram<T,K>::prepare(const Histogram<T,K>& histogram){
@@ -49,7 +69,7 @@ namespace Converter{
       values.emplace_back(pair.second);
       
       }
-      
+
       for(const auto& axisSet : axesSets) axes.emplace_back(axisSet.begin(), axisSet.end());
       
     }
@@ -84,9 +104,16 @@ namespace Converter{
     }
     
     template <class T, class K>
+    unsigned LinearisedHistogram<T,K>::getNumberOfAxes() const{
+      
+      return axes.size();
+      
+    }
+    
+    template <class T, class K>
     unsigned LinearisedHistogram<T,K>::getNumberOfBins(unsigned k) const{
       
-      if(axes.size() > 1) return axes.at(k).size() -1;
+      if(k < axes.size()) return axes.at(k).size() -1;
       else return 0;
       
     }
@@ -112,6 +139,13 @@ namespace Converter{
 	return defaultValue;
 	
       }
+      
+    }
+    
+    template <class T, class K>
+    unsigned LinearisedHistogram<T,K>::getNumberOfValues() const{
+      
+      return values.size();
       
     }
 
