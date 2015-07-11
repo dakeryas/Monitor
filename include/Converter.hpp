@@ -23,7 +23,7 @@ namespace Converter{
       if(dimension == 1){
  
 	rootHistogram = new TH1D("","", linHist.getNumberOfBins(0), linHist.getAxisData(0));
-	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i) rootHistogram->SetBinContent(i, linHist.getValue(i));
+	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i) rootHistogram->SetBinContent(i+1, linHist.getValue(i));
 	
       }
 	  
@@ -32,17 +32,17 @@ namespace Converter{
 	rootHistogram = new TH2D("","", linHist.getNumberOfBins(0), linHist.getAxisData(0), linHist.getNumberOfBins(1), linHist.getAxisData(1));
 	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i)
 	  for(unsigned j = 0; j < linHist.getNumberOfBins(1); ++j)
-	    rootHistogram->SetBinContent(i, j, linHist.getValue(i + j * linHist.getNumberOfBins(0)));
+	    rootHistogram->SetBinContent(i+1, j+1, linHist.getValue(i + j * linHist.getNumberOfBins(0)));
 
       }
 	
       else if(dimension == 3){
 
-	rootHistogram = new TH3D("","", linHist.getNumberOfBins(0) - 1, linHist.getAxisData(0), linHist.getNumberOfBins(1), linHist.getAxisData(1), linHist.getNumberOfBins(2), linHist.getAxisData(2));
+	rootHistogram = new TH3D("","", linHist.getNumberOfBins(0), linHist.getAxisData(0), linHist.getNumberOfBins(1), linHist.getAxisData(1), linHist.getNumberOfBins(2), linHist.getAxisData(2));
 	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i)
 	  for(unsigned j = 0; j < linHist.getNumberOfBins(1); ++j)
-	    for(unsigned k = 0; k < linHist.getAxis(2).size()-1; ++k)
-	      rootHistogram->SetBinContent(i, j, k, linHist.getValue(i + j * linHist.getNumberOfBins(0) + k * linHist.getNumberOfBins(1)));
+	    for(unsigned k = 0; k < linHist.getNumberOfBins(2); ++k)
+	      rootHistogram->SetBinContent(i+1, j+1, k +1, linHist.getValue(i + j * linHist.getNumberOfBins(0) + k * linHist.getNumberOfBins(1)));
 	
       }
 	
