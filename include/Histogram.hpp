@@ -236,7 +236,14 @@ typename std::map<Bin<T>,K>::iterator Histogram<T,K>::end(){
 template <class T, class K>
 K Histogram<T,K>::getCount(const Point<T>& point) const{
   
-  for(auto& pair : countMap) if(pair.first.contains(point)) return pair.second;
+  auto it = std::find_if(countMap.begin(), countMap.end(),[&](decltype(*countMap.begin())& pairBin){return pairBin.first.contains(point);});
+  if(it != countMap.end()) return it->second;
+  else{
+    
+    std::cout<<"No channel matches: "<<point<<" => Returning first content\n";
+    return countMap.begin()->second;
+    
+  }
   
 }
 
@@ -290,7 +297,10 @@ void Histogram<T,K>::addChannels(Iterator begin, Iterator end){
 template <class T, class K>
 void Histogram<T,K>::addCount(const Point<T>& point){
 
-  for(auto& pair : countMap) if(pair.first.contains(point)) pair.second += 1; 
+  auto it = std::find_if(countMap.begin(), countMap.end(),[&](decltype(*countMap.begin())& pairBin){return pairBin.first.contains(point);});
+  if(it != countMap.end()) it->second += 1;
+  else std::cout<<"No channel matches: "<<point<<" => Count not added\n";
+
   
 }
 

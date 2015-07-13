@@ -209,12 +209,9 @@ void Experiment<T>::addChannels(const Container& channels){
 template <class T>
 void Experiment<T>::addRun(const Point<T>& configuration, const Run& run){
 
-  if(getConfigurationSize() == configuration.getDimension()){
-  
-    for(auto& pair : runMap) if(pair.first.contains(configuration)) runMap[pair.first] += run;
-    
-  }
-  else std::cout<<configuration<<" is not compatible with previous configurations of size "<<getConfigurationSize()<<std::endl;
+  auto it = std::find_if(runMap.begin(), runMap.end(),[&](decltype(*runMap.begin())& pair){return pair.first.contains(configuration);});
+  if(it != runMap.end()) it->second += run;
+  else std::cout<<"No channel matches: "<<configuration<<" => Run not added\n";
   
 }
 

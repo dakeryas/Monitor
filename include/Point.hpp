@@ -35,7 +35,7 @@ std::ostream& operator<<(std::ostream& output, const Point<T>& point){
   if(point.getDimension() != 0){
     
     for(auto it = point.begin(); it != point.end() - 1; ++it) output<<std::setw(4)<<std::internal<<*it<<", ";
-    output<<(*(point.end() -1));
+    output<<std::setw(4)<<std::internal<<(*(point.end() -1));
     
   }
   
