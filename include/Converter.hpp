@@ -13,7 +13,7 @@ namespace Converter{
   template <class T, class K>
   std::unique_ptr<TH1> toTH1(const Histogram<T,K>& histogram){
 
-    TH1* rootHistogram;
+    TH1* rootHistogram{nullptr};
     
     auto dimension = histogram.getDimension();
     if(dimension > 0 && dimension < 4){
@@ -47,7 +47,6 @@ namespace Converter{
       }
 	
     }
-    else rootHistogram = nullptr;
 
     return std::unique_ptr<TH1>(rootHistogram);
     

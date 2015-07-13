@@ -130,7 +130,7 @@ Histogram<T,K>& Histogram<T,K>::operator/=(const K& factor){
   if(factor != K{}) return *this *= 1/factor;
   else{
     
-    std::cout<<"Histogram division by "<<factor<<" not allowed!"<<std::endl;
+    Tracer(Tracer::Warning)<<"Histogram division by "<<factor<<" not allowed!"<<std::endl;
     return *this;
     
   }
@@ -145,7 +145,7 @@ Histogram<T,K>& Histogram<T,K>::operator/=(const Histogram<T,K>& divider){
   for(auto itPair = std::make_pair(begin(),divider.begin()); itPair.first != end() && itPair.second != divider.end(); ++itPair.first, ++itPair.second){
     
     if(itPair.second->second != zero) itPair.first->second /= itPair.second->second;
-    else std::cout<<"Histogram division by "<<zero<<" not allowed!"<<std::endl;
+    else Tracer(Tracer::Warning)<<"Histogram division by "<<zero<<" not allowed!"<<std::endl;
     
   }
     
@@ -160,7 +160,7 @@ Histogram<T,K>& Histogram<T,K>::normalise(){
   if(totalCounts != K{}) return *this /= getTotalCounts();
   else{
     
-    std::cout<<"Histogram has no counts: already normalised!"<<std::endl;
+    Tracer(Tracer::Warning)<<"Histogram has no counts: already normalised!"<<std::endl;
     return *this;
     
   }
@@ -240,7 +240,7 @@ K Histogram<T,K>::getCount(const Point<T>& point) const{
   if(it != countMap.end()) return it->second;
   else{
     
-    std::cout<<"No channel matches: "<<point<<" => Returning first content\n";
+    Tracer(Tracer::Error)<<"No channel matches: "<<point<<" => Returning first content"<<std::endl;
     return countMap.begin()->second;
     
   }
@@ -299,7 +299,7 @@ void Histogram<T,K>::addCount(const Point<T>& point){
 
   auto it = std::find_if(countMap.begin(), countMap.end(),[&](decltype(*countMap.begin())& pairBin){return pairBin.first.contains(point);});
   if(it != countMap.end()) it->second += 1;
-  else std::cout<<"No channel matches: "<<point<<" => Count not added\n";
+  else Tracer(Tracer::Warning)<<"No channel matches: "<<point<<" => Count not added"<<std::endl;
 
   
 }
