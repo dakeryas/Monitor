@@ -1,6 +1,4 @@
-#include <sstream>
 #include "TFile.h"
-#include "TCanvas.h"
 #include "ExperimentExtractor.hpp"
 #include "Converter.hpp"
 #include "Binner.hpp"
@@ -10,10 +8,10 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   
   ExperimentExtractor experimentExtractor(data, simu1, simu2);
   
-  Binner<double> binner({Axis<double>(5, 0.44, 0.59), Axis<double>(1, 0.086, 0.089), Axis<double>(5, 0.26, 0.4), Axis<double>(2, 0.03, 0.08)});
+  Binner<double> binner({Axis<double>(5, 0.44, 0.66), Axis<double>(1, 0.085, 0.091), Axis<double>(5, 0.22, 0.4), Axis<double>(2, 0.03, 0.08)});
   auto experiment = experimentExtractor.extractExperiment<double>(constants::distance::L1, constants::distance::L2, constants::backgroundRate::total, binner.generateBinning());
-//   experiment.slim();
-//   std::cout<<experiment<<std::endl;
+  experiment.slim();
+  std::cout<<experiment<<std::endl;
   
   Simulation<double, double> simulation(constants::distance::average, constants::mixing::th13, constants::squaredMass::delta31, referenceSpectra.begin(), referenceSpectra.end());
   simulation.simulateToMatch(experiment);
@@ -43,7 +41,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   auto normaliser = simulation.getResulingSpectrum(referenceConfiguration);
   unsigned index{};
   for(auto pair : simulation.getResults()){
-    
+
     pair.second /= normaliser;
     spectrum = Converter::toTGraph(pair.second);
     spectrum.SetName(("spectrum_simu_"+std::to_string(index)).c_str());
@@ -57,7 +55,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   }
   
   Histogram<double,double> energyHistogram;
-  binner.setAxes(4, 0., 8.);
+  binner.setAxes(4, 0., 8);
   auto energyChannels = binner.generateBinning();
   normaliser = experiment.getNeutrinoSpectrum<double,double>(referenceConfiguration, energyChannels);
   index = 0;
@@ -75,9 +73,12 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
     ++index;
   
   }
+  
 }
 
 void monitor(const std::string& dirname, const std::string& outname){
+  
+  Tracer::setGlobalVerbosity(Tracer::Error);//set the static variable
   
   TFile dataFile((dirname+"/"+"FinalFitIBDTree_DCIII_Data.root").c_str());
   TFile simuFile1((dirname+"/"+"nu_rate_per_run_B1_3rdPub_f.root").c_str());

@@ -8,11 +8,12 @@ class Tracer{
   
 public:
   enum Verbose{Quiet, Error, Warning, Debug};
-  static Verbose globalVerbose;
+  static Verbose globalVerbose;//declare the static variable; they can only be public (in a sense)
   Tracer(Verbose verbose);
   template <class T>
   Tracer& operator<<(const T& object);
   Tracer& operator<<(std::ostream&(*manipulator)(std::ostream&));//take manipulator functions such as std::endl
+  static void setGlobalVerbosity(Verbose globalVerbose);
   
 private:
   Verbose verbose;
