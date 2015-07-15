@@ -22,7 +22,7 @@ public:
   template <class Container>
   Run(const Container& neutrinos, double time, double power1, double power2);//for iterable containters
   Run& operator+=(const Run& other);
-  bool operator==(const Run& other);
+  bool operator==(const Run& other) const;
   unsigned getNumberOfCandidates() const;
   double getRunningTime() const;
   double getSpentEnergy1() const;

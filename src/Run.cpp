@@ -31,7 +31,7 @@ Run& Run::operator+=(const Run& other){
 
 }
 
-bool Run::operator==(const Run& other){
+bool Run::operator==(const Run& other) const{
   
   for(auto it = std::make_pair(neutrinos.begin(), other.neutrinos.begin()); it.first != neutrinos.end() && it.second != other.neutrinos.end(); ++it.first, ++it.second)
     if(it.first->getEnergy() != it.second->getEnergy()) return false;
