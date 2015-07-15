@@ -92,7 +92,7 @@ unsigned Simulation<T,K>::getAdmissbleConfigurationSize() const{
 template <class T, class K>
 const Histogram<T,K>& Simulation<T,K>::getResulingSpectrum(const Point<T>& configuration) const{
   
-  auto it = std::find_if(results.begin(), results.end(),[&](decltype(*results.begin())& pairHist){return pairHist.first.contains(configuration);});
+  auto it = std::find_if(results.begin(), results.end(),[&](const auto& pairHist){return pairHist.first.contains(configuration);});
   if(it != results.end()) return it->second;
   else{
     

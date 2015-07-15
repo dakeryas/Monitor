@@ -104,7 +104,7 @@ unsigned Experiment<T>::getNumberOfChannels() const{
 template <class T>
 const Run& Experiment<T>::getRun(const Point<T>& configuration) const{
 
-  auto it = std::find_if(runMap.begin(), runMap.end(),[&](decltype(*runMap.begin())& pairRun){return pairRun.first.contains(configuration);});
+  auto it = std::find_if(runMap.begin(), runMap.end(),[&](const auto& pairRun){return pairRun.first.contains(configuration);});
   if(it != runMap.end()) return it->second;
   else{
     
@@ -209,7 +209,7 @@ void Experiment<T>::addChannels(const Container& channels){
 template <class T>
 void Experiment<T>::addRun(const Point<T>& configuration, const Run& run){
 
-  auto it = std::find_if(runMap.begin(), runMap.end(),[&](decltype(*runMap.begin())& pair){return pair.first.contains(configuration);});
+  auto it = std::find_if(runMap.begin(), runMap.end(),[&](const auto& pair){return pair.first.contains(configuration);});
   if(it != runMap.end()) it->second += run;
   else Tracer(Tracer::Warning)<<"No channel matches: "<<configuration<<" => Run not added"<<std::endl;
   
@@ -225,11 +225,11 @@ void Experiment<T>::clear(){
 template <class T>
 void Experiment<T>::slim(){
   
-  auto itDelete = std::find_if(runMap.begin(),runMap.end(),[](decltype(*runMap.begin())& pair){return pair.second == Run{};});
+  auto itDelete = std::find_if(runMap.begin(),runMap.end(),[](const auto& pair){return pair.second == Run{};});
   while(itDelete != runMap.end()){
     
     auto itPastGarbage = runMap.erase(itDelete);//delete element and return an iterator to element past the one deleted
-    itDelete = std::find_if(itPastGarbage,runMap.end(),[](decltype(*runMap.begin())& pair){return pair.second == Run{};});//start from the last deleted element for efficiency
+    itDelete = std::find_if(itPastGarbage,runMap.end(),[](const auto& pair){return pair.second == Run{};});//start from the last deleted element for efficiency
     
   }
 
