@@ -1,8 +1,12 @@
+#include "boost/filesystem.hpp"
+#include "boost/program_options.hpp"
 #include "TFile.h"
 #include "ExperimentExtractor.hpp"
 #include "Converter.hpp"
 #include "Binner.hpp"
 #include "Simulation.hpp"
+
+namespace bpo = boost::program_options;
 
 void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outname, const std::vector<Histogram<double, double>>& referenceSpectra){
   
@@ -76,15 +80,15 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   
 }
 
-void monitor(const std::string& dirname, const std::string& outname){
+void monitor(const boost::filesystem::path& dataPath, const boost::filesystem::path& referenceSpectraPath, const std::vector<boost::filesystem::path>& simulationPaths, const boost::filesystem::path& outputPath){
   
   Tracer::setGlobalVerbosity(Tracer::Error);//set the static variable
   
-  TFile dataFile((dirname+"/"+"FinalFitIBDTree_DCIII_Data.root").c_str());
-  TFile simuFile1((dirname+"/"+"nu_rate_per_run_B1_3rdPub_f.root").c_str());
-  TFile simuFile2((dirname+"/"+"nu_rate_per_run_B2_3rdPub_f.root").c_str());
+  TFile dataFile(dataPath.c_str());
+  TFile simuFile1(simulationPaths.front().c_str());
+  TFile simuFile2(simulationPaths.back().c_str());
   
-  TFile referenceSpectraFile((dirname+"/"+"reference.root").c_str());
+  TFile referenceSpectraFile(referenceSpectraPath.c_str());
   std::vector<Histogram<double, double>> referenceSpectra(4);
   referenceSpectra[0] = Converter::toHistogram<double,double>(*dynamic_cast<TH1D*>(referenceSpectraFile.Get("U235")));
   referenceSpectra[1] = Converter::toHistogram<double,double>(*dynamic_cast<TH1D*>(referenceSpectraFile.Get("U238")));
@@ -95,14 +99,62 @@ void monitor(const std::string& dirname, const std::string& outname){
   TTree* simu1 = dynamic_cast<TTree*>(simuFile1.Get("nu"));
   TTree* simu2 = dynamic_cast<TTree*>(simuFile2.Get("nu"));
   
-  neutrinoRetriever(data, simu1, simu2, outname.c_str(), referenceSpectra);
+  neutrinoRetriever(data, simu1, simu2, outputPath.c_str(), referenceSpectra);
   
 }
 
 int main(int argc, char* argv[]){
   
-  if(argc == 3) monitor(argv[1], argv[2]);
-  else std::cout<<"Error: you must provide a directory for the reference spectra and an out file name \n";
-  return 0;
+  boost::filesystem::path dataPath, referenceSpectraPath, outputPath;
+  std::vector<boost::filesystem::path> simulationPaths;
+  
+  bpo::options_description optionDescription("Monitor usage");
+  optionDescription.add_options()
+  ("help,h", "Display this help message")
+  ("data,d", bpo::value<boost::filesystem::path>(&dataPath)->required(), "Data tree")
+  ("reference,r", bpo::value<boost::filesystem::path>(&referenceSpectraPath)->required(), "Reference spectra file")
+  ("simulations,s", bpo::value<std::vector<boost::filesystem::path>>(&simulationPaths)->required()->multitoken(), "Simulation trees")
+  ("output,o", bpo::value<boost::filesystem::path>(&outputPath)->required(), "Output file where to save the rate and shape evolution");
+
+  bpo::positional_options_description positionalOptions;//to use arguments without "--"
+  positionalOptions.add("data", -1);
+  
+  bpo::variables_map arguments;
+  try{
+    
+    bpo::store(bpo::command_line_parser(argc, argv).options(optionDescription).positional(positionalOptions).run(), arguments);
+    
+    if(arguments.count("help")){
+      
+      std::cout<<optionDescription<<std::endl;
+      return 0;
+      
+    }
+      
+    bpo::notify(arguments);//the arguments are ready to be used
+    
+  }
+  catch(bpo::error& e){
+    
+    std::cout<<e.what()<<std::endl;
+    return 1;
+    
+  }
+  
+  if(!boost::filesystem::is_regular_file(dataPath)) std::cout<<"Error: '"<<dataPath<<"' is not a regular file"<<std::endl;
+  else if(!boost::filesystem::is_regular_file(referenceSpectraPath)) std::cout<<"Error: '"<<referenceSpectraPath<<"' is not a regular file"<<std::endl;
+  else if(simulationPaths.size() != 2) std::cout<<"Error : wrong number of simulation files (2 needed)"<<std::endl;
+  else{
+    
+    for (const auto& file : simulationPaths) if(!boost::filesystem::is_regular_file(file)){
+      
+      std::cout<<"Error: '"<<file<<"' is not a regular file"<<std::endl;
+      return 1;
+      
+    }
+     
+    monitor(dataPath, referenceSpectraPath, simulationPaths, outputPath);
+    
+  }
   
 }
