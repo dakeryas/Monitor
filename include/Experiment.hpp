@@ -41,7 +41,9 @@ public:
   void addChannels(const Container& channels);//if iterable container
   void addRun(const Point<T>& configuration, const Run& run);//add the run to the corresponding configuration
   void clear();//deletes all channels and runs
-  void slim();//removes all channels with no runs
+  Experiment<T>& slim();//removes all channels with no runs
+  Experiment<T>& integrateChannel(unsigned channelToRemove);
+  Experiment<T>& integrateChannels(std::vector<unsigned> channelsToRemove);//compacts bins and sums the corresponding Run's into the compacted bin
   
 };
 
@@ -223,7 +225,7 @@ void Experiment<T>::clear(){
 }
 
 template <class T>
-void Experiment<T>::slim(){
+Experiment<T>& Experiment<T>::slim(){
   
   auto itDelete = std::find_if(runMap.begin(),runMap.end(),[](const auto& pair){return pair.second == Run{};});
   while(itDelete != runMap.end()){
@@ -232,7 +234,28 @@ void Experiment<T>::slim(){
     itDelete = std::find_if(itPastGarbage,runMap.end(),[](const auto& pair){return pair.second == Run{};});//start from the last deleted element for efficiency
     
   }
+  
+  return *this;
 
+}
+
+template <class T>
+Experiment<T>& Experiment<T>::integrateChannel(unsigned channelToRemove){
+
+  return integrateChannel({channelToRemove});
+  
+}
+
+
+template <class T>
+Experiment<T>& Experiment<T>::integrateChannels(std::vector<unsigned> channelsToRemove){
+
+  std::map<Bin<T>, Run> integratedMap;
+  for(auto& pair : runMap) integratedMap[compact(pair.first, channelsToRemove)] += pair.second;//compact the bin add the content of the old bin to the new map at the compacted bin
+  std::swap(runMap, integratedMap);//update countMap
+
+  return *this;
+  
 }
 
 #endif
