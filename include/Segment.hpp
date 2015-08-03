@@ -29,7 +29,7 @@ public:
 template <class T>
 std::ostream& operator<<(std::ostream& output, const Segment<T>& segment){
   
-  output<<"["<<std::setw(4)<<std::internal<<segment.getLowEdge()<<", "<<std::setw(4)<<std::internal<<segment.getUpEdge()<<"]";
+  output<<"["<<std::setw(5)<<std::internal<<segment.getLowEdge()<<", "<<std::setw(5)<<std::internal<<segment.getUpEdge()<<"]";
   return output;
   
 }
