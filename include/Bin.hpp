@@ -114,7 +114,7 @@ Segment< T > Bin<T>::getEdge(unsigned k) const{
   }
   catch(std::out_of_range& e){
     
-    Tracer(Tracer::Warning)<<"Bin of dimension "<<this->getDimension()<<" has no "<<k<<" edge => Returning default edge"<<std::endl;
+    Tracer(Verbose::Warning)<<"Bin of dimension "<<this->getDimension()<<" has no "<<k<<" edge => Returning default edge"<<std::endl;
     return Segment<T>{};
     
   }
@@ -158,7 +158,7 @@ template <class T>
 template <class... Args>
 void Bin<T>::emplaceEdge(unsigned k, Args&&... args){
   
-  if(k > edges.size()) Tracer(Tracer::Warning)<<"Bin of dimension "<<this->getDimension()<<" cannot add a "<<k<<" edge => Edge not added"<<std::endl;
+  if(k > edges.size()) Tracer(Verbose::Warning)<<"Bin of dimension "<<this->getDimension()<<" cannot add a "<<k<<" edge => Edge not added"<<std::endl;
   else edges.emplace(edges.begin() + k, std::forward<Args>(args)...);
 
 }
@@ -181,7 +181,7 @@ void Bin<T>::setEdge(unsigned k, const Segment<T>& edge){
   }
   catch(std::out_of_range& e){
     
-    Tracer(Tracer::Warning)<<"Bin of dimension "<<this->getDimension()<<" has no "<<k<<" edge => Edge not set"<<std::endl;
+    Tracer(Verbose::Warning)<<"Bin of dimension "<<this->getDimension()<<" has no "<<k<<" edge => Edge not set"<<std::endl;
     
   }
   
@@ -197,7 +197,7 @@ void Bin<T>::setEdge(unsigned k, const T& lowEdge, const T& upEdge){
 template <class T>
 Bin<T>& Bin<T>::shift(const Point<T>& shift){
   
-  if(shift.getDimension() != getDimension()) Tracer(Tracer::Warning)<<"Shifting bin with Point of wrong dimension"<<shift<<std::endl;
+  if(shift.getDimension() != getDimension()) Tracer(Verbose::Warning)<<"Shifting bin with Point of wrong dimension"<<shift<<std::endl;
   
   for(auto it = std::make_pair(edges.begin(),shift.begin()); it.first != edges.end() && it.second != shift.end(); ++it.first, ++it.second)
     it.first->shift(*it.second);

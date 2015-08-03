@@ -108,7 +108,7 @@ const Run& Experiment<T>::getRun(const Point<T>& configuration) const{
   if(it != runMap.end()) return it->second;
   else{
     
-    Tracer(Tracer::Error)<<"No run matches: "<<configuration<<"=> Returning first run"<<std::endl;
+    Tracer(Verbose::Error)<<"No run matches: "<<configuration<<"=> Returning first run"<<std::endl;
     return runMap.begin()->second;
     
   }
@@ -211,7 +211,7 @@ void Experiment<T>::addRun(const Point<T>& configuration, const Run& run){
 
   auto it = std::find_if(runMap.begin(), runMap.end(),[&](const auto& pair){return pair.first.contains(configuration);});
   if(it != runMap.end()) it->second += run;
-  else Tracer(Tracer::Warning)<<"No channel matches: "<<configuration<<" => Run not added"<<std::endl;
+  else Tracer(Verbose::Warning)<<"No channel matches: "<<configuration<<" => Run not added"<<std::endl;
   
 }
 

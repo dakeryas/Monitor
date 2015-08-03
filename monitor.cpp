@@ -80,9 +80,9 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   
 }
 
-void monitor(const boost::filesystem::path& dataPath, const boost::filesystem::path& referenceSpectraPath, const std::vector<boost::filesystem::path>& simulationPaths, const boost::filesystem::path& outputPath){
+void monitor(const boost::filesystem::path& dataPath, const boost::filesystem::path& referenceSpectraPath, const std::vector<boost::filesystem::path>& simulationPaths, const boost::filesystem::path& outputPath, Verbose verbose){
   
-  Tracer::setGlobalVerbosity(Tracer::Error);//set the static variable
+  Tracer::setGlobalVerbosity(verbose);//set the static variable
   
   TFile dataFile(dataPath.c_str());
   TFile simuFile1(simulationPaths.front().c_str());
@@ -107,6 +107,7 @@ int main(int argc, char* argv[]){
   
   boost::filesystem::path dataPath, referenceSpectraPath, outputPath;
   std::vector<boost::filesystem::path> simulationPaths;
+  Verbose verbose;
   
   bpo::options_description optionDescription("Monitor usage");
   optionDescription.add_options()
@@ -114,7 +115,8 @@ int main(int argc, char* argv[]){
   ("data,d", bpo::value<boost::filesystem::path>(&dataPath)->required(), "Data tree")
   ("reference,r", bpo::value<boost::filesystem::path>(&referenceSpectraPath)->required(), "Reference spectra file")
   ("simulations,s", bpo::value<std::vector<boost::filesystem::path>>(&simulationPaths)->required()->multitoken(), "Simulation trees")
-  ("output,o", bpo::value<boost::filesystem::path>(&outputPath)->required(), "Output file where to save the rate and shape evolution");
+  ("output,o", bpo::value<boost::filesystem::path>(&outputPath)->required(), "Output file where to save the rate and shape evolution")
+  ("verbose,v", bpo::value<Verbose>(&verbose)->default_value(Verbose::Error),"Verbose level (Quiet, Error, Warning, Debug)");;
 
   bpo::positional_options_description positionalOptions;//to use arguments without "--"
   positionalOptions.add("data", -1);
@@ -153,7 +155,7 @@ int main(int argc, char* argv[]){
       
     }
      
-    monitor(dataPath, referenceSpectraPath, simulationPaths, outputPath);
+    monitor(dataPath, referenceSpectraPath, simulationPaths, outputPath, verbose);
     
   }
   

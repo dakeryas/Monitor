@@ -1,15 +1,6 @@
 #include "Tracer.hpp"
 
-Tracer::Verbose Tracer::globalVerbose;//allocate space for the static variable
-
-std::map <Tracer::Verbose, std::string> verboseMap = {{Tracer::Quiet, "Info"}, {Tracer::Error, "Error"}, {Tracer::Warning, "Warning"}, {Tracer::Debug, "Debug"}};
-
-std::ostream& operator<<(std::ostream& output, Tracer::Verbose verbose){
-  
-  output<<verboseMap[verbose];
-  return output;
-
-}
+Verbose Tracer::globalVerbose;//allocate space for the static variable
 
 Tracer::Tracer(Verbose verbose):verbose(verbose){
   
@@ -24,9 +15,8 @@ Tracer& Tracer::operator<<(std::ostream&(*manipulator)(std::ostream&)){
 
 }
 
-void Tracer::setGlobalVerbosity(Tracer::Verbose globalVerbose){
+void Tracer::setGlobalVerbosity(Verbose globalVerbose){
   
   Tracer::globalVerbose = globalVerbose;
 
 }
-

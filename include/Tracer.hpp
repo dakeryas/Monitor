@@ -1,13 +1,11 @@
 #ifndef TRACER_H
 #define TRACER_H
 
-#include <iostream>
-#include <map>
+#include "Verbose.hpp"
 
 class Tracer{
   
 public:
-  enum Verbose{Quiet, Error, Warning, Debug};
   static Verbose globalVerbose;//declare the static variable; they can only be public (in a sense)
   Tracer(Verbose verbose);
   template <class T>
@@ -19,8 +17,6 @@ private:
   Verbose verbose;
   
 };
-
-std::ostream& operator<<(std::ostream& output, Tracer::Verbose verbose);
 
 template <class T>
 Tracer& Tracer::operator<<(const T& object){
