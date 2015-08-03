@@ -77,7 +77,7 @@ double Run::getNeutrinoRate(double distance1, double distance2, double backgroun
   
   double meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
   
-  if(meanSpentEnergy > 0) return (neutrinos.size() - backgroundRate * time)/getMeanSpentEnergy(distance1, distance2);
+  if(meanSpentEnergy > 0) return (neutrinos.size() - backgroundRate * time)/meanSpentEnergy;
   else return 0;
 
 }
@@ -86,7 +86,7 @@ double Run::getNeutrinoRateError(double distance1, double distance2, double back
 
   double meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
   double numberOfNeutrinos = neutrinos.size() - backgroundRate * time;
-  if(meanSpentEnergy > 0 && numberOfNeutrinos > 0) return sqrt(numberOfNeutrinos)/getMeanSpentEnergy(distance1, distance2);
+  if(meanSpentEnergy > 0 && numberOfNeutrinos > 0) return sqrt(numberOfNeutrinos)/meanSpentEnergy;
   else return std::numeric_limits<double>::infinity();
   
 }
