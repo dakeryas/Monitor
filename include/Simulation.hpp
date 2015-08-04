@@ -3,6 +3,7 @@
 
 #include "Experiment.hpp"
 #include "Constants.hpp"
+#include "Tracer.hpp"
 
 template <class T, class K>
 class Simulation{//class meant to hold runs in the corresponding configuration bin
@@ -96,7 +97,7 @@ const Histogram<T,K>& Simulation<T,K>::getResulingSpectrum(const Point<T>& confi
   if(it != results.end()) return it->second;
   else{
     
-    std::cout<<"No simulated spectrum matches: "<<configuration<<"\n=> Returning first result\n";
+    Tracer(Verbose::Error)<<"No simulated spectrum matches: "<<configuration<<" => Returning first result\n";
     return results.begin()->second;
     
   }

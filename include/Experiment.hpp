@@ -110,7 +110,7 @@ const Run& Experiment<T>::getRun(const Point<T>& configuration) const{
   if(it != runMap.end()) return it->second;
   else{
     
-    Tracer(Verbose::Error)<<"No run matches: "<<configuration<<"=> Returning first run"<<std::endl;
+    Tracer(Verbose::Error)<<"No run matches: "<<configuration<<" => Returning first run"<<std::endl;
     return runMap.begin()->second;
     
   }
