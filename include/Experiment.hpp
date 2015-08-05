@@ -2,7 +2,6 @@
 #define EXPERIMENT_H
 
 #include <algorithm>
-#include "Bin.hpp"
 #include "Run.hpp"
 #include "Scalar.hpp"
 
@@ -14,13 +13,13 @@ class Experiment{//class meant to hold runs in the corresponding configuration b
   double backgroundRate;//background rate for all runs of the  map
   std::map<Bin<T>, Run> runMap;//configuration and corresponding extended run containing the detected neutrino rate
   
-  template <class Type>
-  struct type{};
+  template <class BinType, class ValueType>
+  struct HistogramTypes{};
   
   template <class BinType, class ValueType>
-  Histogram<BinType, ValueType> getRateHistogram(type<ValueType>) const;
+  Histogram<BinType, ValueType> getRateHistogram(HistogramTypes<BinType, ValueType>) const;
   template <class BinType, class ValueType>
-  Histogram<BinType, Scalar<double>> getRateHistogram(type<Scalar<double>>) const;
+  Histogram<BinType, Scalar<ValueType>> getRateHistogram(HistogramTypes<BinType, Scalar<ValueType>>) const;
 
 public:  
   Experiment(double distance1, double distance2, double backgroundRate = 0);
@@ -59,12 +58,7 @@ template <class T>
 std::ostream& operator<<(std::ostream& output, const Experiment<T>& experiment){
   
   output.precision(4);
-  
-  for(const auto& pair : experiment)
-    output<<pair.first<<std::setw(5)<<std::left<<" "
-    <<"-->"<<std::setw(5)<<std::left<<" "<<std::setw(7)<<std::left<<pair.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate())
-    <<"+/-"<<std::setw(2)<<std::left<<" "<<std::setw(5)<<std::left<<pair.second.getNeutrinoRateError(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate())
-    <<"\n";
+  output<<(experiment.template getRateHistogram<T,Scalar<T>>());
   
   return output;
   
@@ -72,7 +66,7 @@ std::ostream& operator<<(std::ostream& output, const Experiment<T>& experiment){
 
 template <class T>
 template <class BinType, class ValueType>
-Histogram<BinType, ValueType> Experiment<T>::getRateHistogram(type<ValueType>) const{
+Histogram<BinType, ValueType> Experiment<T>::getRateHistogram(HistogramTypes<BinType,ValueType>) const{
 
   Histogram<BinType, ValueType> rate;
   for(const auto& pair : runMap) rate.setCount(pair.first, pair.second.getNeutrinoRate(distance1, distance2, backgroundRate));
@@ -82,11 +76,11 @@ Histogram<BinType, ValueType> Experiment<T>::getRateHistogram(type<ValueType>) c
 
 template <class T>
 template <class BinType, class ValueType>
-Histogram<BinType, Scalar<double>> Experiment<T>::getRateHistogram(type<Scalar<double>>) const{
+Histogram<BinType, Scalar<ValueType>> Experiment<T>::getRateHistogram(HistogramTypes<BinType,Scalar<ValueType>>) const{
 
   Histogram<BinType, Scalar<double>> rate;
   for(const auto& pair : runMap)
-    rate.setCount(pair.first, Scalar<double>(pair.second.getNeutrinoRate(distance1, distance2, backgroundRate), pair.second.getNeutrinoRateError(distance1, distance2, backgroundRate)));
+    rate.setCount(pair.first, Scalar<ValueType>(pair.second.getNeutrinoRate(distance1, distance2, backgroundRate), pair.second.getNeutrinoRateError(distance1, distance2, backgroundRate)));
   return rate;
 
 }
@@ -166,7 +160,7 @@ template <class T>
 template <class BinType, class ValueType>
 Histogram<BinType, ValueType> Experiment<T>::getRateHistogram() const{
 
-  return getRateHistogram<BinType, ValueType>(type<ValueType>());//use the default constructor for 'type' because you only need to identify the type of 'type'
+  return getRateHistogram(HistogramTypes<BinType, ValueType>());//use the default constructor for 'type' because you only need to identify the type of 'type'
 
 }
 
