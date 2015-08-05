@@ -23,7 +23,8 @@ namespace Converter{
       if(dimension == 1){
 
 	rootHistogram = new TH1D("","", linHist.getNumberOfBins(0), linHist.getAxisData(0));
-	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i) rootHistogram->SetBinContent(i+1, linHist.getValue(i));
+	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i)
+	  rootHistogram->SetBinContent(i+1, linHist.getValue(i));
 	
       }
 	  
@@ -47,6 +48,63 @@ namespace Converter{
       }
 	
     }
+    else Tracer(Verbose::Error)<<dimension<<"-D histograms cannot be graphically represented => Returning nullptr"<<std::endl;
+
+    return std::unique_ptr<TH1>(rootHistogram);
+    
+  }
+  
+  template <class T, class K>
+  std::unique_ptr<TH1> toTH1(const Histogram<T,Scalar<K>>& histogram){
+
+    TH1* rootHistogram{nullptr};
+    
+    auto dimension = histogram.getDimension();
+    if(dimension > 0 && dimension < 4){
+      
+      LinearisedHistogram<T,Scalar<K>> linHist(histogram);
+	
+      if(dimension == 1){
+
+	rootHistogram = new TH1D("","", linHist.getNumberOfBins(0), linHist.getAxisData(0));
+	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i){
+	  
+	  rootHistogram->SetBinContent(i+1, linHist.getValue(i).getValue());
+	  rootHistogram->SetBinError(i+1, linHist.getValue(i).getError());
+	  
+	}
+	
+      }
+	  
+      else if(dimension == 2){
+ 
+	rootHistogram = new TH2D("","", linHist.getNumberOfBins(0), linHist.getAxisData(0), linHist.getNumberOfBins(1), linHist.getAxisData(1));
+	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i)
+	  for(unsigned j = 0; j < linHist.getNumberOfBins(1); ++j){
+	    
+	    rootHistogram->SetBinContent(i+1, j+1, linHist.getValue(i + j * linHist.getNumberOfBins(0)).getValue());
+	    rootHistogram->SetBinError(i+1, j+1, linHist.getValue(i + j * linHist.getNumberOfBins(0)).getError());
+	    
+	  }
+
+      }
+	
+      else if(dimension == 3){
+
+	rootHistogram = new TH3D("","", linHist.getNumberOfBins(0), linHist.getAxisData(0), linHist.getNumberOfBins(1), linHist.getAxisData(1), linHist.getNumberOfBins(2), linHist.getAxisData(2));
+	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i)
+	  for(unsigned j = 0; j < linHist.getNumberOfBins(1); ++j)
+	    for(unsigned k = 0; k < linHist.getNumberOfBins(2); ++k){
+	      
+	      rootHistogram->SetBinContent(i+1, j+1, k +1, linHist.getValue(i + j * linHist.getNumberOfBins(0) + k * linHist.getNumberOfBins(1)).getValue());
+	      rootHistogram->SetBinError(i+1, j+1, k +1, linHist.getValue(i + j * linHist.getNumberOfBins(0) + k * linHist.getNumberOfBins(1)).getError());
+	      
+	    }
+	
+      }
+	
+    }
+    else Tracer(Verbose::Error)<<dimension<<"-D histograms cannot be graphically represented => Returning nullptr"<<std::endl;
 
     return std::unique_ptr<TH1>(rootHistogram);
     
