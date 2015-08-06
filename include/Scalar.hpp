@@ -41,9 +41,17 @@ public:
   template <class K>
   bool operator == (K otherValue) const;
   template <class K>
+  bool operator != (const Scalar<K>& other) const;
+  template <class K>
+  bool operator != (K otherValue) const;
+  template <class K>
   bool operator<(const Scalar<K>& other) const;//does not take errors into account
   template <class K>
   bool operator<(K otherValue) const;//does not take errors into account
+  template <class K>
+  bool operator>(const Scalar<K>& other) const;//does not take errors into account
+  template <class K>
+  bool operator>(K otherValue) const;//does not take errors into account
   T getValue() const;
   T getError() const;
   template <class K>
@@ -241,6 +249,22 @@ bool Scalar<T>::operator == (K otherValue) const{
 
 template <class T>
 template <class K>
+bool Scalar<T>::operator != (const Scalar<K>& other) const{
+  
+  return !(*this == other);
+  
+}
+
+template <class T>
+template <class K>
+bool Scalar<T>::operator != (K otherValue) const{
+  
+  return !(*this == otherValue);
+  
+}
+
+template <class T>
+template <class K>
 bool Scalar<T>::operator<(const Scalar<K>& other) const{
   
   return value < other.value;
@@ -252,6 +276,22 @@ template <class K>
 bool Scalar<T>::operator<(K otherValue) const{
   
   return value < otherValue;
+
+}
+
+template <class T>
+template <class K>
+bool Scalar<T>::operator>(const Scalar<K>& other) const{
+  
+  return !(*this < other);
+
+}
+
+template <class T>
+template <class K>
+bool Scalar<T>::operator>(K otherValue) const{
+  
+  return !(*this < otherValue);
 
 }
 
