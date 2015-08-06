@@ -298,7 +298,7 @@ template <class T, class K>
 void Histogram<T,K>::addCount(const Point<T>& point){
 
   auto it = std::find_if(countMap.begin(), countMap.end(),[&](const auto& pairBin){return pairBin.first.contains(point);});
-  if(it != countMap.end()) it->second += 1;
+  if(it != countMap.end()) it->second += K{1};
   else Tracer(Verbose::Warning)<<"No channel matches: "<<point<<" => Count not added"<<std::endl;
   
 }

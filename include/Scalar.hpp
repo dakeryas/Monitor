@@ -149,17 +149,14 @@ template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator = (K otherValue){
   
-  error = std::sqrt(std::abs(otherValue));
-  value = otherValue;
-  
-  return *this;
+  return *this = Scalar<T>(otherValue);
 
 }
 
 template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator+=(const Scalar<K>& other){
-  
+
   error = std::sqrt(std::pow(error,2) + std::pow(other.error,2));
   value += other.value;
   return *this;
