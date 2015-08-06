@@ -62,12 +62,12 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   Histogram<double,Scalar<double>> energyHistogram;
   binner.setAxes(4, 0., 8);
   auto energyChannels = binner.generateBinning();
-  auto normaliser = experiment.getNeutrinoSpectrum<double, Scalar<double>>(referenceConfiguration, energyChannels);
+  auto normaliser = experiment.getScaledNeutrinoSpectrum<double, Scalar<double>>(referenceConfiguration, energyChannels);
   index = 0;
   for(const auto& pair : experiment){
    
-//     energyHistogram = pair.second.getScaledNeutrinoSpectrum<double,Scalar<double>>(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate(),energyChannels);
-    energyHistogram = pair.second.getNeutrinoSpectrum<double,Scalar<double>>(energyChannels);
+    energyHistogram = pair.second.getScaledNeutrinoSpectrum<double,Scalar<double>>(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate(),energyChannels);
+//     energyHistogram = pair.second.getNeutrinoSpectrum<double,Scalar<double>>(energyChannels);
 //     energyHistogram /= normaliser;
     auto spectrum = Converter::toTH1(energyHistogram);
     spectrum->SetName(("spectrum_data_"+std::to_string(index)).c_str());

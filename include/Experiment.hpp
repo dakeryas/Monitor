@@ -35,9 +35,9 @@ public:
   unsigned getNumberOfChannels() const;
   const Run& getRun(const Point<T>& configuration) const;//get run that corresponds
   template <class BinType, class ValueType, class Iterator>
-  Histogram<BinType, ValueType> getNeutrinoSpectrum(const Point<T>& configuration, Iterator firstBin, Iterator lastBin) const;
+  Histogram<BinType, ValueType> getScaledNeutrinoSpectrum(const Point<T>& configuration, Iterator firstBin, Iterator lastBin) const;
   template <class BinType, class ValueType, class Container>
-  Histogram<BinType, ValueType> getNeutrinoSpectrum(const Point<T>& configuration, const Container& bins) const;
+  Histogram<BinType, ValueType> getScaledNeutrinoSpectrum(const Point<T>& configuration, const Container& bins) const;
   template <class BinType, class ValueType>
   Histogram<BinType, ValueType> getRateHistogram() const;
   void emplaceChannel(double binLowEdge, double binUpEdge);
@@ -142,7 +142,7 @@ const Run& Experiment<T>::getRun(const Point<T>& configuration) const{
 
 template <class T>
 template <class BinType, class ValueType, class Iterator>
-Histogram<BinType, ValueType> Experiment<T>::getNeutrinoSpectrum(const Point<T>& configuration, Iterator firstBin, Iterator lastBin) const{
+Histogram<BinType, ValueType> Experiment<T>::getScaledNeutrinoSpectrum(const Point<T>& configuration, Iterator firstBin, Iterator lastBin) const{
 
   return getRun(configuration).template getScaledNeutrinoSpectrum<BinType,ValueType>(distance1, distance2, backgroundRate, firstBin, lastBin);
   
@@ -150,9 +150,9 @@ Histogram<BinType, ValueType> Experiment<T>::getNeutrinoSpectrum(const Point<T>&
 
 template <class T>
 template <class BinType, class ValueType, class Container>
-Histogram<BinType, ValueType> Experiment<T>::getNeutrinoSpectrum(const Point<T>& configuration, const Container& bins) const{
+Histogram<BinType, ValueType> Experiment<T>::getScaledNeutrinoSpectrum(const Point<T>& configuration, const Container& bins) const{
 
-  return getNeutrinoSpectrum<BinType,ValueType>(configuration, bins.begin(), bins.end());
+  return getScaledNeutrinoSpectrum<BinType,ValueType>(configuration, bins.begin(), bins.end());
   
 }
 
