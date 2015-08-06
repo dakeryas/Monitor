@@ -66,7 +66,7 @@ Experiment<T> ExperimentExtractor::extractExperiment(double distance1, double di
 
     experiment.addRun(
       Point<double>{equivalentFuel.getFrac("235U"), equivalentFuel.getFrac("238U"), equivalentFuel.getFrac("239Pu"), equivalentFuel.getFrac("241Pu")}, 
-      Run(neutrinos, runLength, power1, power2)
+      Run<double>(neutrinos, runLength, power1, power2)
     );
     
     neutrinos.resize(0);

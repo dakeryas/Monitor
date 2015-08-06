@@ -11,7 +11,7 @@ class Experiment{//class meant to hold runs in the corresponding configuration b
   double distance1;//distance to reactor 1
   double distance2;// distance to reactor 2
   double backgroundRate;//background rate for all runs of the  map
-  std::map<Bin<T>, Run> runMap;//configuration and corresponding extended run containing the detected neutrino rate
+  std::map<Bin<T>, Run<double>> runMap;//configuration and corresponding extended run containing the detected neutrino rate
   
   template <class BinType, class ValueType>
   struct HistogramTypes{};
@@ -26,14 +26,14 @@ public:
   double getDistance1() const;
   double getDistance2() const;
   double getBackgroundRate() const;
-  typename std::map<Bin<T>, Run>::const_iterator begin() const;
-  typename std::map<Bin<T>, Run>::const_iterator end() const;
+  typename std::map<Bin<T>, Run<double>>::const_iterator begin() const;
+  typename std::map<Bin<T>, Run<double>>::const_iterator end() const;
   void setDistance1(double  distance1);
   void setDistance2(double distance2);
   void setBackgroundRate(double backgroundRate);
   unsigned getConfigurationSize() const;
   unsigned getNumberOfChannels() const;
-  const Run& getRun(const Point<T>& configuration) const;//get run that corresponds
+  const Run<double>& getRun(const Point<T>& configuration) const;//get run that corresponds
   template <class BinType, class ValueType, class Iterator>
   Histogram<BinType, ValueType> getScaledNeutrinoSpectrum(const Point<T>& configuration, Iterator firstBin, Iterator lastBin) const;
   template <class BinType, class ValueType, class Container>
@@ -46,11 +46,11 @@ public:
   void addChannels(Iterator begin, Iterator end);//copy channels pointed to from begin to end
   template <class Container>
   void addChannels(const Container& channels);//if iterable channels
-  void addRun(const Point<T>& configuration, const Run& run);//add the run to the corresponding configuration
+  void addRun(const Point<T>& configuration, const Run<double>& run);//add the run to the corresponding configuration
   void clear();//deletes all channels and runs
   Experiment<T>& slim();//removes all channels with no runs
   Experiment<T>& integrateChannel(unsigned channelToRemove);
-  Experiment<T>& integrateChannels(std::vector<unsigned> channelsToRemove);//compacts bins and sums the corresponding Run's into the compacted bin
+  Experiment<T>& integrateChannels(std::vector<unsigned> channelsToRemove);//compacts bins and sums the corresponding Run<double>'s into the compacted bin
   
 };
 
@@ -127,7 +127,7 @@ unsigned Experiment<T>::getNumberOfChannels() const{
 }
 
 template <class T>
-const Run& Experiment<T>::getRun(const Point<T>& configuration) const{
+const Run<double>& Experiment<T>::getRun(const Point<T>& configuration) const{
 
   auto it = std::find_if(runMap.begin(), runMap.end(),[&](const auto& pairRun){return pairRun.first.contains(configuration);});
   if(it != runMap.end()) return it->second;
@@ -165,14 +165,14 @@ Histogram<BinType, ValueType> Experiment<T>::getRateHistogram() const{
 }
 
 template <class T>
-typename std::map<Bin<T>, Run>::const_iterator Experiment<T>::begin() const{
+typename std::map<Bin<T>, Run<double>>::const_iterator Experiment<T>::begin() const{
   
   return runMap.begin();
 
 }
 
 template <class T>
-typename std::map<Bin<T>, Run>::const_iterator Experiment<T>::end() const{
+typename std::map<Bin<T>, Run<double>>::const_iterator Experiment<T>::end() const{
   
   return runMap.end();
 
@@ -209,7 +209,7 @@ void Experiment<T>::emplaceChannel(double binLowEdge, double binUpEdge){
 template <class T>
 void Experiment<T>::addChannel(const Bin<T>& bin){
   
-  runMap.emplace(bin, Run{});//default construct the Run to zero neutrinos and zero time
+  runMap.emplace(bin, Run<double>{});//default construct the Run<double> to zero neutrinos and zero time
 
 }
 
@@ -230,11 +230,11 @@ void Experiment<T>::addChannels(const Container& channels){
 }
 
 template <class T>
-void Experiment<T>::addRun(const Point<T>& configuration, const Run& run){
+void Experiment<T>::addRun(const Point<T>& configuration, const Run<double>& run){
 
   auto it = std::find_if(runMap.begin(), runMap.end(),[&](const auto& pair){return pair.first.contains(configuration);});
   if(it != runMap.end()) it->second += run;
-  else Tracer(Verbose::Warning)<<"No channel matches: "<<configuration<<" => Run not added"<<std::endl;
+  else Tracer(Verbose::Warning)<<"No channel matches: "<<configuration<<" => Run<double> not added"<<std::endl;
   
 }
 
@@ -248,11 +248,11 @@ void Experiment<T>::clear(){
 template <class T>
 Experiment<T>& Experiment<T>::slim(){
   
-  auto itDelete = std::find_if(runMap.begin(),runMap.end(),[](const auto& pair){return pair.second == Run{};});
+  auto itDelete = std::find_if(runMap.begin(),runMap.end(),[](const auto& pair){return pair.second == Run<double>{};});
   while(itDelete != runMap.end()){
     
     auto itPastGarbage = runMap.erase(itDelete);//delete element and return an iterator to element past the one deleted
-    itDelete = std::find_if(itPastGarbage,runMap.end(),[](const auto& pair){return pair.second == Run{};});//start from the last deleted element for efficiency
+    itDelete = std::find_if(itPastGarbage,runMap.end(),[](const auto& pair){return pair.second == Run<double>{};});//start from the last deleted element for efficiency
     
   }
   
@@ -270,7 +270,7 @@ Experiment<T>& Experiment<T>::integrateChannel(unsigned channelToRemove){
 template <class T>
 Experiment<T>& Experiment<T>::integrateChannels(std::vector<unsigned> channelsToRemove){
 
-  std::map<Bin<T>, Run> integratedMap;
+  std::map<Bin<T>, Run<double>> integratedMap;
   for(auto& pair : runMap) integratedMap[compact(pair.first, channelsToRemove)] += pair.second;//compact the bin add the content of the old bin to the new map at the compacted bin
   std::swap(runMap, integratedMap);//update countMap
 
