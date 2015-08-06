@@ -168,7 +168,7 @@ Histogram<T,K>& Histogram<T,K>::normalise(){
 }
 
 template <class T, class K>
-Histogram< T, K >& Histogram<T,K>::scaleCountsTo(const K& newNorm){
+Histogram<T,K>& Histogram<T,K>::scaleCountsTo(const K& newNorm){
   
   K totalCounts = getTotalCounts();
   if(totalCounts != K{}) return *this *= newNorm/getTotalCounts();

@@ -45,7 +45,7 @@ public:
   template <class Iterator>
   void addChannels(Iterator begin, Iterator end);//copy channels pointed to from begin to end
   template <class Container>
-  void addChannels(const Container& channels);//if iterable container
+  void addChannels(const Container& channels);//if iterable channels
   void addRun(const Point<T>& configuration, const Run& run);//add the run to the corresponding configuration
   void clear();//deletes all channels and runs
   Experiment<T>& slim();//removes all channels with no runs
@@ -150,9 +150,9 @@ Histogram<BinType, ValueType> Experiment<T>::getNeutrinoSpectrum(const Point<T>&
 
 template <class T>
 template <class BinType, class ValueType, class Container>
-Histogram<BinType, ValueType> Experiment<T>::getNeutrinoSpectrum(const Point<T>& configuration, const Container& container) const{
+Histogram<BinType, ValueType> Experiment<T>::getNeutrinoSpectrum(const Point<T>& configuration, const Container& bins) const{
 
-  return getNeutrinoSpectrum<BinType,ValueType>(configuration, container.begin(), container.end());
+  return getNeutrinoSpectrum<BinType,ValueType>(configuration, bins.begin(), bins.end());
   
 }
 
