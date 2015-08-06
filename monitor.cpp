@@ -5,7 +5,6 @@
 #include "Converter.hpp"
 #include "Binner.hpp"
 #include "Simulation.hpp"
-#include "Scalar.hpp"
 
 namespace bpo = boost::program_options;
 
@@ -23,9 +22,9 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   simulation.simulateToMatch(experiment);
   simulation.shiftResultingSpectra(constants::mass::proton - constants::mass::neutron  + constants::mass::electron);//convert the neutrino's energy to the positron's energy + electron's annihilation mass
 //   std::cout<<simulation<<std::endl;
-  
+
   TFile outfile(outname, "recreate");
-  auto rate = Converter::toTH1(experiment.getRateHistogram<double,double>());
+  auto rate = Converter::toTH1(experiment.getRateHistogram<double,Scalar<double>>());
   if(rate){
   
     if(rate->GetDimension() == 1){
@@ -43,42 +42,44 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   
   Point<double> referenceConfiguration{0.575, 0.0875, 0.274, 0.0425};//U5,U8,PU9,PU41
   
-  TGraphErrors spectrum;
-  auto normaliser = simulation.getResulingSpectrum(referenceConfiguration);
-  unsigned index{};
-  for(auto pair : simulation.getResults()){
-
-    pair.second /= normaliser;
-    spectrum = Converter::toTGraph(pair.second);
-    spectrum.SetName(("spectrum_simu_"+std::to_string(index)).c_str());
-    spectrum.SetTitle(Converter::toString(pair.first.getCenter()).c_str());
-    spectrum.SetLineColor(index + 1);
-    spectrum.SetLineWidth(2);
-    spectrum.Write();
-
-    ++index;
-    
-  }
-  
-  Histogram<double,double> energyHistogram;
-  binner.setAxes(4, 0., 8);
-  auto energyChannels = binner.generateBinning();
-  normaliser = experiment.getNeutrinoSpectrum<double,double>(referenceConfiguration, energyChannels);
-  index = 0;
-  for(const auto& pair : experiment){
-   
-    energyHistogram = pair.second.getScaledNeutrinoSpectrum<double,double>(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate(),energyChannels);
-    energyHistogram /= normaliser;
-    spectrum = Converter::toTGraph(energyHistogram);
-    spectrum.SetName(("spectrum_data_"+std::to_string(index)).c_str());
-    spectrum.SetTitle(Converter::toString(pair.first.getCenter()).c_str());
-    spectrum.SetLineColor(index + 1);
-    spectrum.SetLineWidth(2);
-    spectrum.Write();
-  
-    ++index;
-  
-  }
+// //   auto normaliser = simulation.getResulingSpectrum(referenceConfiguration);
+//   unsigned index{};
+// //   for(auto pair : simulation.getResults()){
+// // 
+// //     pair.second /= normaliser;
+// //     auto spectrum = Converter::toTH1(pair.second);
+// //     spectrum->SetName(("spectrum_simu_"+std::to_string(index)).c_str());
+// //     spectrum->SetTitle(Converter::toString(pair.first.getCenter()).c_str());
+// //     if(index + 1 != 10) spectrum->SetLineColor(index + 1);
+// //     else spectrum->SetLineColor(kOrange +1);
+// //     spectrum->SetLineWidth(2);
+// //     spectrum->Write();
+// // 
+// //     ++index;
+// //     
+// //   }
+//   
+//   Histogram<double,Scalar<double>> energyHistogram;
+//   binner.setAxes(4, 0., 8);
+//   auto energyChannels = binner.generateBinning();
+//   auto normaliser = experiment.getNeutrinoSpectrum<double, Scalar<double>>(referenceConfiguration, energyChannels);
+//   index = 0;
+//   for(const auto& pair : experiment){
+//    
+// //     energyHistogram = pair.second.getScaledNeutrinoSpectrum<double,Scalar<double>>(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate(),energyChannels);
+//     energyHistogram = pair.second.getNeutrinoSpectrum<double,Scalar<double>>(energyChannels);
+// //     energyHistogram /= normaliser;
+//     auto spectrum = Converter::toTH1(energyHistogram);
+//     spectrum->SetName(("spectrum_data_"+std::to_string(index)).c_str());
+//     spectrum->SetTitle(Converter::toString(pair.first.getCenter()).c_str());
+//     if(index + 1 != 10) spectrum->SetLineColor(index + 1);
+//     else spectrum->SetLineColor(kOrange +1);
+//     spectrum->SetLineWidth(2);
+//     spectrum->Write();
+//   
+//     ++index;
+//   
+//   }
   
 }
 
