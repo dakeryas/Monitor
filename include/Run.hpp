@@ -173,7 +173,7 @@ template<class BinType, class ValueType, class Iterator>
 Histogram<BinType, ValueType> Run<T>::getScaledNeutrinoSpectrum(T distance1, T distance2, T backgroundRate, Iterator firstBin, Iterator lastBin) const{
   
   auto histogram = getNeutrinoSpectrum<BinType, ValueType>(firstBin, lastBin);
-  return histogram.scaleCountsTo(getNeutrinoRate(distance1, distance2, backgroundRate));
+  return histogram.scaleCountsTo(getNeutrinoRate<ValueType>(distance1, distance2, backgroundRate));
   
 }
 

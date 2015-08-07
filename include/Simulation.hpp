@@ -184,7 +184,7 @@ template<class ConfigurationType, class RunType>
 void Simulation<T,K>::scaleCountsTo(const Experiment<ConfigurationType, RunType>& experiment){
 
   for(const auto& pairBin : experiment)
-    results[pairBin.first].scaleCountsTo(pairBin.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate()));
+    results[pairBin.first].scaleCountsTo(pairBin.second.template getNeutrinoRate<RunType>(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate()));
   
 }
 
