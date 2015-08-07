@@ -37,21 +37,13 @@ public:
   template <class K>
   Scalar<T>& operator/=(K otherValue);//otherValue is assumed to be error-less
   template <class K>
-  bool operator == (const Scalar<K>& other) const;
+  bool isEqualTo(const Scalar<K>& other) const;
   template <class K>
-  bool operator == (K otherValue) const;
+  bool isEqualTo(K otherValue) const;
   template <class K>
-  bool operator != (const Scalar<K>& other) const;
+  bool isLessThan(const Scalar<K>& other) const;//does not take errors into account
   template <class K>
-  bool operator != (K otherValue) const;
-  template <class K>
-  bool operator<(const Scalar<K>& other) const;//does not take errors into account
-  template <class K>
-  bool operator<(K otherValue) const;//does not take errors into account
-  template <class K>
-  bool operator>(const Scalar<K>& other) const;//does not take errors into account
-  template <class K>
-  bool operator>(K otherValue) const;//does not take errors into account
+  bool isLessThan(K otherValue) const;//does not take errors into account
   T getValue() const;
   T getError() const;
   template <class K>
@@ -130,6 +122,90 @@ template <class T, class K>
 Scalar<T> operator/(K otherValue, const Scalar<T>& scalar){
   
   return Scalar<T>(otherValue, K{})/scalar;//assume zero error on otherValue, so force the error to zero since the usual constructor doesn't
+  
+}
+
+template <class T, class K>
+bool operator == (const Scalar<T>& scalar1, const Scalar<K>& scalar2){
+  
+  return scalar1.isEqualTo(scalar2);
+  
+}
+
+template <class T, class K>
+bool operator == (const Scalar<T>& scalar, K otherValue){
+  
+  return scalar.isEqualTo(otherValue);
+  
+}
+
+template <class T, class K>
+bool operator == (K otherValue, const Scalar<T>& scalar){
+  
+  return scalar == otherValue;
+  
+}
+
+template <class T, class K>
+bool operator != (const Scalar<T>& scalar1, const Scalar<K>& scalar2){
+  
+  return !(scalar1 == scalar2);
+  
+}
+
+template <class T, class K>
+bool operator != (const Scalar<T>& scalar, K otherValue){
+  
+  return !(scalar == otherValue);
+  
+}
+
+template <class T, class K>
+bool operator != (K otherValue, const Scalar<T>& scalar){
+  
+  return scalar != otherValue;
+  
+}
+
+template <class T, class K>
+bool operator<(const Scalar<T>& scalar1, const Scalar<K>& scalar2){
+  
+  return scalar1.isLessThan(scalar2);
+  
+}
+
+template <class T, class K>
+bool operator<(const Scalar<T>& scalar, K otherValue){
+  
+  return scalar.isLessThan(otherValue);
+  
+}
+
+template <class T, class K>
+bool operator<(K otherValue, const Scalar<T>& scalar){
+  
+  return !(scalar < otherValue);
+  
+}
+
+template <class T, class K>
+bool operator>(const Scalar<T>& scalar1, const Scalar<K>& scalar2){
+  
+  return !(scalar1 < scalar2);
+  
+}
+
+template <class T, class K>
+bool operator>(const Scalar<T>& scalar, K otherValue){
+  
+  return !(scalar < otherValue);
+  
+}
+
+template <class T, class K>
+bool operator>(K otherValue, const Scalar<T>& scalar){
+  
+  return scalar < otherValue;
   
 }
 
@@ -230,7 +306,7 @@ Scalar<T>& Scalar<T>::operator/=(K otherValue){
 
 template <class T>
 template <class K>
-bool Scalar<T>::operator == (const Scalar<K>& other) const{
+bool Scalar<T>::isEqualTo(const Scalar<K>& other) const{
   
   return value == other.value && error == other.error;
   
@@ -238,7 +314,7 @@ bool Scalar<T>::operator == (const Scalar<K>& other) const{
 
 template <class T>
 template <class K>
-bool Scalar<T>::operator == (K otherValue) const{
+bool Scalar<T>::isEqualTo(K otherValue) const{
   
   return value == otherValue;
   
@@ -246,23 +322,7 @@ bool Scalar<T>::operator == (K otherValue) const{
 
 template <class T>
 template <class K>
-bool Scalar<T>::operator != (const Scalar<K>& other) const{
-  
-  return !(*this == other);
-  
-}
-
-template <class T>
-template <class K>
-bool Scalar<T>::operator != (K otherValue) const{
-  
-  return !(*this == otherValue);
-  
-}
-
-template <class T>
-template <class K>
-bool Scalar<T>::operator<(const Scalar<K>& other) const{
+bool Scalar<T>::isLessThan(const Scalar<K>& other) const{
   
   return value < other.value;
 
@@ -270,25 +330,9 @@ bool Scalar<T>::operator<(const Scalar<K>& other) const{
 
 template <class T>
 template <class K>
-bool Scalar<T>::operator<(K otherValue) const{
+bool Scalar<T>::isLessThan(K otherValue) const{
   
   return value < otherValue;
-
-}
-
-template <class T>
-template <class K>
-bool Scalar<T>::operator>(const Scalar<K>& other) const{
-  
-  return !(*this < other);
-
-}
-
-template <class T>
-template <class K>
-bool Scalar<T>::operator>(K otherValue) const{
-  
-  return !(*this < otherValue);
 
 }
 
