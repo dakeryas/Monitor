@@ -57,7 +57,7 @@ template <class T>
 std::ostream& operator<<(std::ostream& output, const Scalar<T>& scalar){
   
   output<<std::setw(7)<<std::left<<scalar.getValue()
-    <<"+/-"<<std::setw(2)<<std::left<<" "<<std::setw(5)<<std::left<<scalar.getError();
+    <<" +/-"<<std::setw(2)<<std::left<<" "<<std::setw(5)<<std::left<<scalar.getError();
   return output;
   
 }
