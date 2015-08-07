@@ -29,8 +29,8 @@ public:
   T getSpentEnergy1() const;
   T getSpentEnergy2() const;
   T getMeanSpentEnergy(T distance1, T distance2) const;//get the mean spent energy for two reactors situated at distance1 and distance2 from the detector
-  T getNeutrinoRate(T distance1, T distance2, T backgroundRate) const;//get the rate with respect to the total energy spent and substract the background noise
-  T getNeutrinoRateError(T distance1, T distance2, T backgroundRate) const;
+  template <class ReturnType = T>
+  ReturnType getNeutrinoRate(T distance1, T distance2, T backgroundRate) const;//get the rate with respect to the total energy spent and substract the background noise, if you want the error as well, set ReturnType to Scalar<T>
   template<class BinType, class ValueType, class Iterator>
   Histogram<BinType, ValueType> getNeutrinoSpectrum(Iterator firstBin, Iterator lastBin) const;
   template<class BinType, class ValueType, class Container>
@@ -133,31 +133,21 @@ T Run<T>::getSpentEnergy2() const{
 template <class T>
 T Run<T>::getMeanSpentEnergy(T distance1, T distance2) const{
   
-  return (spentEnergy1 * pow(distance2, 2) + spentEnergy2 * pow(distance1, 2))/distance1/distance2;
+  return (spentEnergy1 * std::pow(distance2, 2) + spentEnergy2 * std::pow(distance1, 2))/distance1/distance2;
 
 }
 
 template <class T>
-T Run<T>::getNeutrinoRate(T distance1, T distance2, T backgroundRate) const{
+template <class ReturnType>
+ReturnType Run<T>::getNeutrinoRate(T distance1, T distance2, T backgroundRate) const{
   
   T meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
+  ReturnType numberOfNeutrinos = neutrinos.size() - backgroundRate * time;
   
-  T zero{};
-  if(meanSpentEnergy > zero) return (neutrinos.size() - backgroundRate * time)/meanSpentEnergy;
+  ReturnType zero{};
+  if(meanSpentEnergy > zero && numberOfNeutrinos > zero) return numberOfNeutrinos/meanSpentEnergy;// with ReturnType = Scalar : operator(Scalar, T) returns a Saclar
   else return zero;
 
-}
-
-template <class T>
-T Run<T>::getNeutrinoRateError(T distance1, T distance2, T backgroundRate) const{
-
-  T meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
-  T numberOfNeutrinos = neutrinos.size() - backgroundRate * time;
-  
-  T zero{};
-  if(meanSpentEnergy > zero && numberOfNeutrinos > zero) return sqrt(numberOfNeutrinos)/meanSpentEnergy;
-  else return std::numeric_limits<T>::infinity();
-  
 }
 
 template <class T>
