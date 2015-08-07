@@ -39,7 +39,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
     rate->Write("rate");
     
   }
-  
+
   Point<double> referenceConfiguration{0.575, 0.0875, 0.274, 0.0425};//U5,U8,PU9,PU41
   
 //   auto normaliser = simulation.getResulingSpectrum(referenceConfiguration);
