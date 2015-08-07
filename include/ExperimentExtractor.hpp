@@ -22,15 +22,15 @@ public:
   ExperimentExtractor() = delete;
   ExperimentExtractor(TTree* data, TTree* simu1, TTree* simu2);
   ~ExperimentExtractor() = default;//do not release the pointers you do not own
-  template <class T, class Iterator>
-  Experiment<T> extractExperiment(double distance1, double distance2, double backgroundRate, Iterator beginChannel, Iterator endChannel);
-  template <class T, class Container>
-  Experiment<T> extractExperiment(double distance1, double distance2, double backgroundRate, const Container& channels);
+  template <class T, class K, class Iterator>
+  Experiment<T,K> extractExperiment(double distance1, double distance2, double backgroundRate, Iterator beginChannel, Iterator endChannel);
+  template <class T, class K, class Container>
+  Experiment<T,K> extractExperiment(double distance1, double distance2, double backgroundRate, const Container& channels);
   
 };
 
-template <class T, class Iterator>
-Experiment<T> ExperimentExtractor::extractExperiment(double distance1, double distance2, double backgroundRate, Iterator beginChannel, Iterator endChannel){
+template <class T, class K, class Iterator>
+Experiment<T,K> ExperimentExtractor::extractExperiment(double distance1, double distance2, double backgroundRate, Iterator beginChannel, Iterator endChannel){
   
   std::vector<Particle> neutrinos;
   Reactor reactor1, reactor2;
@@ -38,7 +38,7 @@ Experiment<T> ExperimentExtractor::extractExperiment(double distance1, double di
   reactor2.setDistanceToDetector(distance2);
   Fuel equivalentFuel;
 
-  Experiment<T> experiment(distance1, distance2, backgroundRate);
+  Experiment<T,K> experiment(distance1, distance2, backgroundRate);
   experiment.addChannels(beginChannel, endChannel);
   
   unsigned i = 0;
@@ -77,10 +77,10 @@ Experiment<T> ExperimentExtractor::extractExperiment(double distance1, double di
   
 }
 
-template <class T, class Container>
-Experiment<T> ExperimentExtractor::extractExperiment(double distance1, double distance2, double backgroundRate, const Container& channels){
+template <class T, class K, class Container>
+Experiment<T,K> ExperimentExtractor::extractExperiment(double distance1, double distance2, double backgroundRate, const Container& channels){
  
-  return extractExperiment<T>(distance1, distance2, backgroundRate, channels.begin(), channels.end());
+  return extractExperiment<T,K>(distance1, distance2, backgroundRate, channels.begin(), channels.end());
   
 }
 #endif

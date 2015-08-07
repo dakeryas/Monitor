@@ -12,7 +12,7 @@ class Simulation{//class meant to hold runs in the corresponding configuration b
   double theta13;//to apply the neutrino oscillation to the neutrino spectrum
   double delta31;//mass to apply the oscillation
   std::vector<Histogram<T,K>> referenceSpectra;//must follow the order of the bin edges in Experiment
-  std::map<Bin<T>, Histogram<T,K>> results;//for each configuration/bin in the experiment, compute the simulate spectrum
+  std::map<Bin<T>, Histogram<T,K>> results;//for each configuration/bin in the experiment, compute the simulated spectrum
   
 public:
   template <class Iterator>  
@@ -22,7 +22,8 @@ public:
   double getTheta13() const;
   double getDelta31() const;
   unsigned getAdmissbleConfigurationSize() const;
-  const Histogram<T,K>& getResulingSpectrum(const Point<T>& configration) const;//get the spectrum from 'results' whose corresponding bin contains the 'configuration'
+  template<class CoordinateType>
+  const Histogram<T,K>& getResulingSpectrum(const Point<CoordinateType>& configration) const;//get the spectrum from 'results' whose corresponding bin contains the 'configuration'
   const std::map<Bin<T>, Histogram<T,K>>& getResults() const;
   void setAverageDistance(double averageDistance);
   void setTheta13(double theta13);
@@ -30,11 +31,14 @@ public:
   template <class Iterator>
   void setReferenceSpectra(Iterator beginReferenceSpectra, Iterator endReferenceSpectra);
   void setReferenceSpectra(std::initializer_list<Histogram<T,K>> referenceSpectra);
-  void build(const Experiment<T>& experiment);//build the reference results according to the configrations of the experiment
+  template<class ConfigurationType, class RunType>
+  void build(const Experiment<ConfigurationType, RunType>& experiment);//build the reference results according to the configrations of the experiment
   void applyOscillation();
   void applyCrossSection();
-  void scaleCountsTo(const Experiment<T>& experiment);//normalise each spectrum in results to the rate obtained for the corresponding configration in the experiment
-  void simulateToMatch(const Experiment<T>& experiment);//apply the oscillation, the cross section, and normalise to the data rates
+  template<class ConfigurationType, class RunType>
+  void scaleCountsTo(const Experiment<ConfigurationType, RunType>& experiment);//normalise each spectrum in results to the rate obtained for the corresponding configration in the experiment
+  template<class ConfigurationType, class RunType>
+  void simulateToMatch(const Experiment<ConfigurationType, RunType>& experiment);//apply the oscillation, the cross section, and normalise to the data rates
   void shiftResultingSpectra(const T& shift);//shift all histograms in 'results' by 'shift'
   
 };
@@ -91,7 +95,8 @@ unsigned Simulation<T,K>::getAdmissbleConfigurationSize() const{
 }
 
 template <class T, class K>
-const Histogram<T,K>& Simulation<T,K>::getResulingSpectrum(const Point<T>& configuration) const{
+template<class CoordinateType>
+const Histogram<T,K>& Simulation<T,K>::getResulingSpectrum(const Point<CoordinateType>& configuration) const{
   
   auto it = std::find_if(results.begin(), results.end(),[&](const auto& pairHist){return pairHist.first.contains(configuration);});
   if(it != results.end()) return it->second;
@@ -148,7 +153,8 @@ void Simulation<T,K>::setReferenceSpectra(std::initializer_list<Histogram<T,K>> 
 }
 
 template <class T, class K>
-void Simulation<T,K>::build(const Experiment< T >& experiment){
+template<class ConfigurationType, class RunType>
+void Simulation<T,K>::build(const Experiment<ConfigurationType, RunType>& experiment){
   
   for(const auto& pairBin : experiment)
     results[pairBin.first] = weigh(pairBin.first.getCenter(), referenceSpectra.begin(), referenceSpectra.end());//weigh reference spectra with the composition
@@ -174,7 +180,8 @@ void Simulation<T,K>::applyCrossSection(){
 }
 
 template <class T, class K>
-void Simulation<T,K>::scaleCountsTo(const Experiment<T>& experiment){
+template<class ConfigurationType, class RunType>
+void Simulation<T,K>::scaleCountsTo(const Experiment<ConfigurationType, RunType>& experiment){
 
   for(const auto& pairBin : experiment)
     results[pairBin.first].scaleCountsTo(pairBin.second.getNeutrinoRate(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate()));
@@ -182,7 +189,8 @@ void Simulation<T,K>::scaleCountsTo(const Experiment<T>& experiment){
 }
 
 template <class T, class K>
-void Simulation<T,K>::simulateToMatch(const Experiment<T>& experiment){
+template<class ConfigurationType, class RunType>
+void Simulation<T,K>::simulateToMatch(const Experiment<ConfigurationType, RunType>& experiment){
   
   build(experiment);
   applyOscillation();

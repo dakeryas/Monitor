@@ -13,7 +13,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   Binner<double> binner({Axis<double>(5, 0.44, 0.66), Axis<double>(1, 0.085, 0.091), Axis<double>(5, 0.22, 0.4), Axis<double>(2, 0.03, 0.08)});
   
   ExperimentExtractor experimentExtractor(data, simu1, simu2);//use the simulations to create Fuel bins for the data
-  auto experiment = experimentExtractor.extractExperiment<double>(constants::distance::L1, constants::distance::L2, constants::backgroundRate::total, binner.generateBinning());
+  auto experiment = experimentExtractor.extractExperiment<double, double>(constants::distance::L1, constants::distance::L2, constants::backgroundRate::total, binner.generateBinning());
   experiment.slim();
   std::cout<<experiment<<std::endl;
   std::cout<<"Integrated Experiment:\n"<<experiment.integrateChannels({0,1,3})<<std::endl;
