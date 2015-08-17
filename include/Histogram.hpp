@@ -157,7 +157,7 @@ template <class T, class K>
 Histogram<T,K>& Histogram<T,K>::normalise(){
 
   K totalCounts = getTotalCounts();
-  if(totalCounts != K{}) return *this /= getTotalCounts();
+  if(totalCounts != K{}) return *this /= totalCounts;
   else{
     
     Tracer(Verbose::Warning)<<"Histogram has no counts: already normalised!"<<std::endl;
@@ -171,7 +171,7 @@ template <class T, class K>
 Histogram<T,K>& Histogram<T,K>::scaleCountsTo(const K& newNorm){
   
   K totalCounts = getTotalCounts();
-  if(totalCounts != K{}) return *this *= newNorm/getTotalCounts();
+  if(totalCounts != K{}) return *this *= newNorm/totalCounts;
   else return *this;
 
 }
