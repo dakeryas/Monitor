@@ -56,7 +56,7 @@ template <class T,class K>
 std::ostream& operator<<(std::ostream& output, const Experiment<T,K>& experiment){
   
   output.precision(4);
-  output<<(experiment.template getRateHistogram<T,Scalar<T>>());
+  output<<(experiment.template getRateHistogram<T,Scalar<K>>());
   
   return output;
   

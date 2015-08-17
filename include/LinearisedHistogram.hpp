@@ -135,7 +135,7 @@ namespace Converter{
       }
       catch(std::out_of_range& e){//if there are no entries in the original Histogram, it may mean that the counts where 'zero'
 	
-	std::cout<<"Error: No "<<k<<" value: returning default K{}"<<std::endl;
+	Tracer(Verbose::Error)<<"No "<<k<<" value: returning default K{}"<<std::endl;
 	return defaultValue;
 	
       }

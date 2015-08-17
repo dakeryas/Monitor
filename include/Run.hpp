@@ -143,7 +143,7 @@ ReturnType Run<T>::getNeutrinoRate(T distance1, T distance2, T backgroundRate) c
   
   T meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
   ReturnType numberOfNeutrinos = neutrinos.size() - backgroundRate * time;
-  
+
   ReturnType zero{};
   if(meanSpentEnergy > zero && numberOfNeutrinos > zero) return numberOfNeutrinos/meanSpentEnergy;// with ReturnType = Scalar : operator(Scalar, T) returns a Saclar
   else return zero;
