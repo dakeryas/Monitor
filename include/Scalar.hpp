@@ -9,7 +9,7 @@ template <class T>
 class Scalar{
 
   T value;
-  T error;
+  T variance;//square of the 1 sigma error on the 'value'
   
 public:
   Scalar() = default;
@@ -46,6 +46,7 @@ public:
   bool isLessThan(K otherValue) const;//does not take errors into account
   T getValue() const;
   T getError() const;
+  T getRelativeError() const;
   template <class K>
   void setValue(K value);
   template <class K>
@@ -59,7 +60,7 @@ std::ostream& operator<<(std::ostream& output, const Scalar<T>& scalar){
   output<<std::setw(7)<<std::left<<scalar.getValue()
     <<" +/-  "<<std::setw(7)<<std::left<<scalar.getError();
     
-  if(scalar.getValue() != T{}) output<<"  ("<<std::setw(5)<<std::left<<(100*scalar.getError()/scalar.getValue())<<"%)";//add the relative error for non-zero values
+  if(scalar.getValue() != T{}) output<<"  ("<<std::setw(5)<<std::left<<(100*scalar.getRelativeError())<<"%)";//add the relative error for non-zero values
   return output;
   
 }
@@ -213,13 +214,13 @@ bool operator>(K otherValue, const Scalar<T>& scalar){
 
 template <class T>
 template <class K>
-Scalar<T>::Scalar(K value):Scalar(value, std::sqrt(std::abs(value))){
+Scalar<T>::Scalar(K value):value(value),variance(value){
   
 }
 
 template <class T>
 template <class K1, class K2>
-Scalar<T>::Scalar(K1 value, K2 error):value(value),error(error){
+Scalar<T>::Scalar(K1 value, K2 error):value(value),variance(error * error){
   
 }
 
@@ -235,8 +236,11 @@ template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator+=(const Scalar<K>& other){
 
-  error = std::sqrt(std::pow(error,2) + std::pow(other.error,2));
+  if(this != &other) variance += other.variance;
+  else variance *= 4;//Var(2X) = 4 Var(X)
+  
   value += other.value;
+  
   return *this;
 
 }
@@ -254,8 +258,11 @@ template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator*=(const Scalar<K>& other){
   
-  error = std::sqrt(std::pow(value * other.error,2) + std::pow(other.value * error,2) +  std::pow(error * other.error,2));//for independent variables sqrt(varY EX2 + varX EY2 + varX varY)
+  if(this != &other) variance = other.variance * std::pow(value,2) + variance * std::pow(other.value,2) +  variance * other.variance;//for independent variables VarXY = varY EX2 + varX EY2 + varX varY
+  else variance = 4 * variance * std::pow(value,2) + 2 * std::pow(variance,2); //for gaussians Var(X2) = 4 EX2 VarX + 2 VarX2
+  
   value *= other.value;
+  
   return *this;
 
 }
@@ -264,7 +271,7 @@ template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator*=(K otherValue){
   
-  error *= otherValue;
+  variance *= otherValue * otherValue;//Var(aX) = a2 VarX
   value *= otherValue;
   return *this;
 
@@ -274,15 +281,25 @@ template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator/=(const Scalar<K>& other){
   
-  T zero{};
+  if(this != &other){
   
-  if(other.value != zero){
+    T zero{};
     
-    error = (value  / other.value) * std::sqrt(std::pow(error/value,2) + std::pow(other.error/other.value,2));//for independent variables (EX/EY) * sqrt(relativeErrorX2 + relativeErrorY2)
-    value /= other.value;//first order Taylor expansion approximation of E(X/Y)
+    if(other.value != zero){
+      
+      variance = std::pow(value/other.value,2) * (variance/std::pow(value,2) + other.variance/std::pow(other.value,2));//for independent variables (EX/EY) * sqrt(relativeErrorX2 + relativeErrorY2)
+      value /= other.value;//first order Taylor expansion approximation of E(X/Y)
+      
+    }
+    else Tracer(Verbose::Warning)<<"Scalar division by "<<zero<<" not allowed!"<<std::endl;
     
   }
-  else Tracer(Verbose::Warning)<<"Scalar division by "<<zero<<" not allowed!"<<std::endl;
+  else{// X over X equals to one with no error
+    
+    value = 1;
+    variance = T{};
+    
+  }
   
   return *this;
 
@@ -296,7 +313,7 @@ Scalar<T>& Scalar<T>::operator/=(K otherValue){
   
   if(otherValue != zero){
     
-    error /= otherValue;
+    variance /= otherValue * otherValue;// Var(X/a) = (1/a2) VarX
     value /= otherValue;
     
   }
@@ -310,7 +327,7 @@ template <class T>
 template <class K>
 bool Scalar<T>::isEqualTo(const Scalar<K>& other) const{
   
-  return value == other.value && error == other.error;
+  return value == other.value && variance == other.variance;
   
 }
 
@@ -348,7 +365,14 @@ T Scalar<T>::getValue() const{
 template <class T>
 T Scalar<T>::getError() const{
 
-  return error;
+  return std::sqrt(variance);
+  
+}
+
+template <class T>
+T Scalar<T>::getRelativeError() const{
+
+  return getError()/value;
   
 }
 
@@ -364,8 +388,7 @@ template <class T>
 template <class K>
 void Scalar<T>::setError(K error){
 
-  this->error = std::abs(error);
-  Tracer(Verbose::Warning)<<"Deviation "<<error<<" is negative => Absolute value set"<<std::endl;
+  this->variance = error*error;
   
 }
 
