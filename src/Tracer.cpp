@@ -1,6 +1,6 @@
 #include "Tracer.hpp"
 
-Verbose Tracer::globalVerbose;//allocate space for the static variable
+std::atomic<Verbose> Tracer::globalVerbose;//allocate space for the static variable
 
 Tracer::Tracer(Verbose verbose):verbose(verbose){
   

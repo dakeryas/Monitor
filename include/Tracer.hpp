@@ -1,12 +1,12 @@
 #ifndef TRACER_H
 #define TRACER_H
 
+#include <atomic>
 #include "Verbose.hpp"
 
 class Tracer{
   
 public:
-  static Verbose globalVerbose;//declare the static variable; they can only be public (in a sense)
   Tracer(Verbose verbose);
   template <class T>
   Tracer& operator<<(const T& object);
@@ -14,6 +14,7 @@ public:
   static void setGlobalVerbosity(Verbose globalVerbose);
   
 private:
+  static std::atomic<Verbose> globalVerbose;//declare the static variable; they can only be public (in a sense)
   Verbose verbose;
   
 };
