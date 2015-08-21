@@ -8,7 +8,9 @@
 template <class T>
 class Scalar{
 
-  T value;
+  static std::atomic<unsigned> globalIdentifier;//thread-safe counter
+  unsigned identifier;//to compare for equality when computing Var with X = Y
+  T value;//value of the scalar
   T variance;//square of the 1 sigma error on the 'value'
   
 public:
@@ -53,6 +55,9 @@ public:
   void setError(K error);
   
 };
+
+template <class T>
+std::atomic<unsigned> Scalar<T>::globalIdentifier{};//allocate space and assign to default (zero) value
 
 template <class T>
 std::ostream& operator<<(std::ostream& output, const Scalar<T>& scalar){
@@ -214,13 +219,13 @@ bool operator>(K otherValue, const Scalar<T>& scalar){
 
 template <class T>
 template <class K>
-Scalar<T>::Scalar(K value):value(value),variance(value){
+Scalar<T>::Scalar(K value):identifier(++globalIdentifier),value(value),variance(value){
   
 }
 
 template <class T>
 template <class K1, class K2>
-Scalar<T>::Scalar(K1 value, K2 error):value(value),variance(error * error){
+Scalar<T>::Scalar(K1 value, K2 error):identifier(++globalIdentifier),value(value),variance(error * error){
   
 }
 
@@ -236,8 +241,13 @@ template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator+=(const Scalar<K>& other){
 
-  if(this != &other) variance += other.variance;
-  else variance *= 4;//Var(2X) = 4 Var(X)
+  if(identifier != other.identifier){
+    
+    variance += other.variance;//indepent case Cov(X,Y) + 0
+    identifier = ++globalIdentifier;//when multiplying by another variable, assume that X+Y is now independent enough from X and from Y(for lack of an efficient alternative)
+    
+  }
+  else  variance += other.variance + 2 * std::sqrt(variance*other.variance);//if linearly (Person) correlated, also add 2 sqrt(varX) sqrt(varY)
   
   value += other.value;
   
@@ -258,10 +268,26 @@ template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator*=(const Scalar<K>& other){
   
-  if(this != &other) variance = other.variance * std::pow(value,2) + variance * std::pow(other.value,2) +  variance * other.variance;//for independent variables VarXY = varY EX2 + varX EY2 + varX varY
-  else variance = 4 * variance * std::pow(value,2) + 2 * std::pow(variance,2); //for gaussians Var(X2) = 4 EX2 VarX + 2 VarX2
-  
-  value *= other.value;
+  if(identifier != other.identifier){
+    
+    variance = std::pow(value,2) * other.variance + std::pow(other.value,2) * variance +  variance * other.variance;//for independent variables VarXY = //EX2 varY  + EY2 varX  + varX varY
+    value *= other.value;
+    identifier = ++globalIdentifier;//when multiplying by another variable, assume that XY is now independent enough from X and from Y
+    
+  }
+  else{//for linearly correlated variables
+
+    auto covariance = std::sqrt(variance * other.variance);
+    
+    variance = std::pow(value,2) * other.variance + std::pow(other.value,2) * variance //EX2 varY  + EY2 varX 
+      - 2 * value * other.value * covariance //2 EX EY Cov(X,Y)
+      + std::sqrt(
+	(4 * std::pow(value,2) * variance + 2 * std::pow(variance,2)) * (4 * std::pow(other.value,2) * other.variance + 2 * std::pow(other.variance,2))
+      );//Cov(X2, Y2) = sqrt(VarX2 VarY2)
+ 
+    value = value * other.value + covariance;//mu_1 * mu_2 + sigma_1 * sigma_2
+    
+  }
   
   return *this;
 
@@ -280,27 +306,29 @@ Scalar<T>& Scalar<T>::operator*=(K otherValue){
 template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator/=(const Scalar<K>& other){
+
+  T zero{};
   
-  if(this != &other){
-  
-    T zero{};
+  if(other.value != zero){
     
-    if(other.value != zero){
+    if(identifier != other.identifier){
       
       variance = std::pow(value/other.value,2) * (variance/std::pow(value,2) + other.variance/std::pow(other.value,2));//for independent variables (EX/EY) * sqrt(relativeErrorX2 + relativeErrorY2)
-      value /= other.value;//first order Taylor expansion approximation of E(X/Y)
+      value = value / other.value + value * other.variance / std::pow(other.value, 3);//second order Taylor expansion approximation of E(X/Y)
+      identifier = ++globalIdentifier;//when dividing by another variable, assume that X/Y is now independent enough from X and from Y
       
     }
-    else Tracer(Verbose::Warning)<<"Scalar division by "<<zero<<" not allowed!"<<std::endl;
+    else{// linearly correlated case
+      
+      auto covariance = std::sqrt(variance * other.variance);
+      variance = std::pow(value * std::sqrt(other.variance) - other.value * std::sqrt(variance),2)/std::pow(other.value,4);
+      value = value / other.value - covariance/std::pow(other.value,2) + value * other.variance / std::pow(other.value, 3);//second order Taylor expansion approximation of E(X/Y)
+      
+    }
     
   }
-  else{// X over X equals to one with no error
-    
-    value = 1;
-    variance = T{};
-    
-  }
-  
+  else Tracer(Verbose::Warning)<<"Scalar division by "<<zero<<" not allowed!"<<std::endl;
+
   return *this;
 
 }
