@@ -12,12 +12,6 @@ class Experiment{//class meant to hold runs in the corresponding configuration b
   K distance2;// distance to reactor 2
   K backgroundRate;//background rate for all runs of the  map
   std::map<Bin<T>, Run<K>> runMap;//configuration and corresponding extended run containing the detected neutrino rate
-  
-  template <class BinType, class ValueType>
-  struct HistogramTypes{};
-  
-  template <class BinType, class ValueType>
-  Histogram<BinType, ValueType> getRateHistogram(HistogramTypes<BinType, ValueType>) const;
 
 public:  
   Experiment(K distance1, K distance2, K backgroundRate = 0);
@@ -60,16 +54,6 @@ std::ostream& operator<<(std::ostream& output, const Experiment<T,K>& experiment
   
   return output;
   
-}
-
-template <class T,class K>
-template <class BinType, class ValueType>
-Histogram<BinType, ValueType> Experiment<T,K>::getRateHistogram(HistogramTypes<BinType,ValueType>) const{
-
-  Histogram<BinType, ValueType> rate;
-  for(const auto& pair : runMap) rate.setCount(pair.first, pair.second.template getNeutrinoRate<ValueType>(distance1, distance2, backgroundRate));
-  return rate;
-
 }
 
 template <class T,class K>
@@ -147,7 +131,9 @@ template <class T,class K>
 template <class BinType, class ValueType>
 Histogram<BinType, ValueType> Experiment<T,K>::getRateHistogram() const{
 
-  return getRateHistogram(HistogramTypes<BinType, ValueType>());//use the default constructor for 'HistogramTypes' because you only need to identify the type of 'HistogramTypes'
+  Histogram<BinType, ValueType> rate;
+  for(const auto& pair : runMap) rate.setCount(pair.first, pair.second.template getNeutrinoRate<ValueType>(distance1, distance2, backgroundRate));
+  return rate;
 
 }
 

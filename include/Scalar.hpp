@@ -296,7 +296,7 @@ Scalar<T>& Scalar<T>::operator*=(const Scalar<K>& other){
 template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator*=(K otherValue){
-  
+
   variance *= otherValue * otherValue;//Var(aX) = a2 VarX
   value *= otherValue;
   return *this;
