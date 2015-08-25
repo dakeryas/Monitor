@@ -16,6 +16,14 @@ class Run{
   T spentEnergy1;//energy spent by reactor 1 during the run
   T spentEnergy2;//energy spent by reactor 2 during the run
   
+  template <class BinType, class ValueType>
+  struct HistogramTypes{};//to specialise some methods for <BinType, Scalar<ValueType>>
+  
+  template<class BinType, class ValueType, class Iterator>
+  Histogram<BinType, ValueType> getScaledNeutrinoSpectrum(HistogramTypes<BinType,ValueType>, T distance1, T distance2, T backgroundRate, Iterator firstBin, Iterator lastBin) const;
+  template<class BinType, class ValueType, class Iterator>
+  Histogram<BinType, Scalar<ValueType>> getScaledNeutrinoSpectrum(HistogramTypes<BinType,Scalar<ValueType>>, T distance1, T distance2, T backgroundRate, Iterator firstBin, Iterator lastBin) const;
+  
 public:  
   Run();
   template <class Iterator>
@@ -50,6 +58,24 @@ std::ostream& operator<<(std::ostream& output, const Run<T>& run){
     <<std::setw(14)<<std::left<<"\nSpentEnergy1"<<": "<<run.getSpentEnergy1()
     <<std::setw(14)<<"\nSpentEnergy2"<<": "<<run.getSpentEnergy2();
   return output;
+  
+}
+
+template <class T>
+template<class BinType, class ValueType, class Iterator>
+Histogram<BinType, ValueType> Run<T>::getScaledNeutrinoSpectrum(HistogramTypes<BinType,ValueType>, T distance1, T distance2, T backgroundRate, Iterator firstBin, Iterator lastBin) const{
+
+  auto histogram = getNeutrinoSpectrum<BinType, ValueType>(firstBin, lastBin);
+  return histogram.scaleCountsTo(getNeutrinoRate<ValueType>(distance1, distance2, backgroundRate));
+  
+}
+
+template <class T>
+template<class BinType, class ValueType, class Iterator>
+Histogram<BinType,Scalar<ValueType>> Run<T>::getScaledNeutrinoSpectrum(HistogramTypes<BinType,Scalar<ValueType>>, T distance1, T distance2, T backgroundRate, Iterator firstBin, Iterator lastBin) const{
+
+  auto histogram = getNeutrinoSpectrum<BinType,Scalar<ValueType>>(firstBin, lastBin);
+  return histogram.scaleCountsTo(getNeutrinoRate<ValueType>(distance1, distance2, backgroundRate));//drop the "Scalar" when normalising since we don't want to double count the error on the bin contents
   
 }
 
@@ -172,8 +198,7 @@ template <class T>
 template<class BinType, class ValueType, class Iterator>
 Histogram<BinType, ValueType> Run<T>::getScaledNeutrinoSpectrum(T distance1, T distance2, T backgroundRate, Iterator firstBin, Iterator lastBin) const{
   
-  auto histogram = getNeutrinoSpectrum<BinType, ValueType>(firstBin, lastBin);
-  return histogram.scaleCountsTo(getNeutrinoRate<ValueType>(distance1, distance2, backgroundRate));
+  return getScaledNeutrinoSpectrum(HistogramTypes<BinType, ValueType>{}, distance1, distance2, backgroundRate, firstBin, lastBin);//types are passed through the default-struct HistogramTypes<>
   
 }
 

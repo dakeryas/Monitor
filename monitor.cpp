@@ -22,7 +22,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   simulation.simulateToMatch(experiment);
   simulation.shiftResultingSpectra(constants::mass::proton - constants::mass::neutron  + constants::mass::electron);//convert the neutrino's energy to the positron's energy + electron's annihilation mass
 //   std::cout<<simulation<<std::endl;
-
+  
   TFile outfile(outname, "recreate");
   auto rate = Converter::toTH1(experiment.getRateHistogram<double,Scalar<double>>());
   if(rate){
@@ -62,7 +62,7 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
   Histogram<double,Scalar<double>> energyHistogram;
   binner.setAxes(4, 0., 8);
   auto energyChannels = binner.generateBinning();
-  auto normaliser = experiment.getScaledNeutrinoSpectrum<double, Scalar<double>>(referenceConfiguration, energyChannels);
+//   auto normaliser = experiment.getScaledNeutrinoSpectrum<double, Scalar<double>>(referenceConfiguration, energyChannels);
   index = 0;
   for(const auto& pair : experiment){
    
