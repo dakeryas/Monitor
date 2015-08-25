@@ -3,23 +3,39 @@
 
 #include <map>
 #include "Bin.hpp"
+#include "Scalar.hpp"
 
 template <class T, class K>
 class Histogram{
 
   std::map<Bin<T>, K> countMap;//map to store the counts for Bin<T>
   
+  template <class BinType, class ValueType>
+  struct HistogramTypes{};//to specialise some methods for <BinType, Scalar<ValueType>>
+  
+  template <class BinType, class ValueType>
+  Histogram<T,K>& normalise(HistogramTypes<BinType,ValueType>);
+  template <class BinType, class ValueType>
+  Histogram<T,K>& normalise(HistogramTypes<BinType,Scalar<ValueType>>);
+  template <class BinType, class ValueType, class NormType>
+  Histogram<T,K>& scaleCountsTo(HistogramTypes<BinType,ValueType>, const NormType& newNorm);
+  template <class BinType, class ValueType, class NormType>
+  Histogram<T,K>& scaleCountsTo(HistogramTypes<BinType,Scalar<ValueType>>, const NormType& newNorm);
+  
 public:
   Histogram() = default;
   template <class Iterator>
   Histogram(Iterator firstBin, Iterator lastBin);
   Histogram<T,K>& operator+=(const Histogram<T,K>& other);
-  Histogram<T,K>& operator*=(const K& factor);
+  template <class FactorType>
+  Histogram<T,K>& operator*=(const FactorType& factor);
   Histogram<T,K>& operator*=(const Histogram<T,K>& multiplier);
-  Histogram<T,K>& operator/=(const K& factor);
+  template <class FactorType>
+  Histogram<T,K>& operator/=(const FactorType& factor);
   Histogram<T,K>& operator/=(const Histogram<T,K>& divider);
   Histogram<T,K>& normalise();
-  Histogram<T,K>& scaleCountsTo(const K& newNorm);
+  template<class NormType>
+  Histogram<T,K>& scaleCountsTo(const NormType& newNorm);
   Histogram<T,K>& shiftChannels(const Point<T>& shift);//shift all channels with 'shift'
   Histogram<T,K>& integrateDimension(unsigned dimensionToRemove);//integrate the counts over 'dimensionToRemove'
   Histogram<T,K>& integrateDimensions(std::vector<unsigned> dimensionsToRemove);//integrate the counts over 'dimensionToRemove'
@@ -55,15 +71,15 @@ Histogram<T,K> operator+(Histogram<T,K> histogram1, const Histogram<T,K>& histog
   
 }
 
-template <class T, class K>
-Histogram<T,K> operator*(Histogram<T,K> histogram, const K& factor){
+template <class T, class K, class FactorType>
+Histogram<T,K> operator*(Histogram<T,K> histogram, const FactorType& factor){
   
   return histogram *= factor;
   
 }
 
-template <class T, class K>
-Histogram<T,K> operator*(const K& factor, Histogram<T,K> histogram){
+template <class T, class K, class FactorType>
+Histogram<T,K> operator*(const FactorType& factor, Histogram<T,K> histogram){
   
   return histogram * factor;
   
@@ -76,8 +92,8 @@ Histogram<T,K> operator*(Histogram<T,K> histogram1, const Histogram<T,K>& histog
   
 }
 
-template <class T, class K>
-Histogram<T,K> operator/(Histogram<T,K> histogram, const K& factor){
+template <class T, class K, class FactorType>
+Histogram<T,K> operator/(Histogram<T,K> histogram, const FactorType& factor){
   
   return histogram /= factor;
   
@@ -88,6 +104,56 @@ Histogram<T,K> operator/(Histogram<T,K> histogram1, const Histogram<T,K>& histog
   
   return histogram1 /= histogram2;
   
+}
+
+template <class T, class K>
+template <class BinType, class ValueType>
+Histogram<T,K>& Histogram<T,K>::normalise(HistogramTypes<BinType,ValueType>){
+  
+  ValueType totalCounts = getTotalCounts();
+  if(totalCounts != ValueType{}) return *this /= totalCounts;
+  else{
+    
+    Tracer(Verbose::Warning)<<"Histogram has no counts: already normalised!"<<std::endl;
+    return *this;
+    
+  }
+
+}
+
+template <class T, class K>
+template <class BinType, class ValueType>
+Histogram<T,K>& Histogram<T,K>::normalise(HistogramTypes<BinType,Scalar<ValueType>>){
+  
+  ValueType totalCounts = getTotalCounts().getValue();//drop the "Scalar" when normalising since we don't want to double count the error on the bin contents
+  if(totalCounts != ValueType{}) return *this /= totalCounts;
+  else{
+    
+    Tracer(Verbose::Warning)<<"Histogram has no counts: already normalised!"<<std::endl;
+    return *this;
+    
+  }
+
+}
+
+template <class T, class K>
+template <class BinType, class ValueType, class NormType>
+Histogram<T,K>& Histogram<T,K>::scaleCountsTo(HistogramTypes<BinType,ValueType>, const NormType& newNorm){
+  
+  ValueType totalCounts = getTotalCounts();
+  if(totalCounts != K{}) return *this *= newNorm/totalCounts;
+  else return *this;
+
+}
+
+template <class T, class K>
+template <class BinType, class ValueType, class NormType>
+Histogram<T,K>& Histogram<T,K>::scaleCountsTo(HistogramTypes<BinType,Scalar<ValueType>>, const NormType& newNorm){
+
+  ValueType totalCounts = getTotalCounts().getValue();//drop the "Scalar" when normalising since we don't want to double count the error on the bin contents
+  if(totalCounts != K{}) return *this *= newNorm/totalCounts;
+  else return *this;
+
 }
 
 template <class T, class K>
@@ -108,7 +174,8 @@ Histogram<T,K>& Histogram<T,K>::operator+=(const Histogram<T,K>& other){
 }
 
 template <class T, class K>
-Histogram<T,K>& Histogram<T,K>::operator*=(const K& factor){
+template <class FactorType>
+Histogram<T,K>& Histogram<T,K>::operator*=(const FactorType& factor){
 
   for(auto& pair : countMap) pair.second *= factor;
   return *this;
@@ -125,7 +192,8 @@ Histogram<T,K>& Histogram<T,K>::operator*=(const Histogram<T,K>& multiplier){
 }
 
 template <class T, class K>
-Histogram<T,K>& Histogram<T,K>::operator/=(const K& factor){
+template <class FactorType>
+Histogram<T,K>& Histogram<T,K>::operator/=(const FactorType& factor){
 
   if(factor != K{}) return *this *= 1/factor;
   else{
@@ -156,23 +224,15 @@ Histogram<T,K>& Histogram<T,K>::operator/=(const Histogram<T,K>& divider){
 template <class T, class K>
 Histogram<T,K>& Histogram<T,K>::normalise(){
 
-  K totalCounts = getTotalCounts();
-  if(totalCounts != K{}) return *this /= totalCounts;
-  else{
-    
-    Tracer(Verbose::Warning)<<"Histogram has no counts: already normalised!"<<std::endl;
-    return *this;
-    
-  }
+  return normalise(HistogramTypes<T,K>{});
   
 }
 
 template <class T, class K>
-Histogram<T,K>& Histogram<T,K>::scaleCountsTo(const K& newNorm){
-  
-  K totalCounts = getTotalCounts();
-  if(totalCounts != K{}) return *this *= newNorm/totalCounts;
-  else return *this;
+template <class NormType>
+Histogram<T,K>& Histogram<T,K>::scaleCountsTo(const NormType& newNorm){
+
+  return scaleCountsTo(HistogramTypes<T,K>{}, newNorm);
 
 }
 
