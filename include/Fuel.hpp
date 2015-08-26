@@ -4,7 +4,6 @@
 #include <map>
 #include <cmath>
 #include <iostream>
-#include <Rtypes.h>
 
 class Fuel{
   

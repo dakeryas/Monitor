@@ -77,11 +77,11 @@ namespace Converter{
       }
 	  
       else if(dimension == 2){
- 
+
 	rootHistogram = new TH2D("","", linHist.getNumberOfBins(0), linHist.getAxisData(0), linHist.getNumberOfBins(1), linHist.getAxisData(1));
 	for(unsigned i = 0; i < linHist.getNumberOfBins(0); ++i)
 	  for(unsigned j = 0; j < linHist.getNumberOfBins(1); ++j){
-	    
+
 	    rootHistogram->SetBinContent(i+1, j+1, linHist.getValue(i + j * linHist.getNumberOfBins(0)).getValue());
 	    rootHistogram->SetBinError(i+1, j+1, linHist.getValue(i + j * linHist.getNumberOfBins(0)).getError());
 	    
