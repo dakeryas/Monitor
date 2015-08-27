@@ -26,13 +26,19 @@ public:
   Histogram() = default;
   template <class Iterator>
   Histogram(Iterator firstBin, Iterator lastBin);
-  Histogram<T,K>& operator+=(const Histogram<T,K>& other);
+  Histogram<T,K> operator-();
+  template <class OtherBinType, class OtherValueType>
+  Histogram<T,K>& operator+=(const Histogram<OtherBinType,OtherValueType>& other);
+  template <class OtherBinType, class OtherValueType>
+  Histogram<T,K>& operator-=(const Histogram<OtherBinType,OtherValueType>& other);
   template <class FactorType>
   Histogram<T,K>& operator*=(const FactorType& factor);
-  Histogram<T,K>& operator*=(const Histogram<T,K>& multiplier);
+  template <class OtherBinType, class OtherValueType>
+  Histogram<T,K>& operator*=(const Histogram<OtherBinType,OtherValueType>& multiplier);
   template <class FactorType>
   Histogram<T,K>& operator/=(const FactorType& factor);
-  Histogram<T,K>& operator/=(const Histogram<T,K>& divider);
+  template <class OtherBinType, class OtherValueType>
+  Histogram<T,K>& operator/=(const Histogram<OtherBinType,OtherValueType>& divider);
   Histogram<T,K>& normalise();
   template<class NormType>
   Histogram<T,K>& scaleCountsTo(const NormType& newNorm);
@@ -64,10 +70,17 @@ std::ostream& operator<<(std::ostream& output, const Histogram<T,K>& histogram){
   
 }
 
-template <class T, class K>
-Histogram<T,K> operator+(Histogram<T,K> histogram1, const Histogram<T,K>& histogram2){
+template <class T1, class K1, class T2, class K2>
+Histogram<T1,K1> operator+(Histogram<T1,K1> histogram1, const Histogram<T2,K2>& histogram2){
   
   return histogram1 += histogram2;
+  
+}
+
+template <class T1, class K1, class T2, class K2>
+Histogram<T1,K1> operator-(Histogram<T1,K1> histogram1, const Histogram<T2,K2>& histogram2){
+  
+  return histogram1 -= histogram2;
   
 }
 
@@ -85,8 +98,8 @@ Histogram<T,K> operator*(const FactorType& factor, Histogram<T,K> histogram){
   
 }
 
-template <class T, class K>
-Histogram<T,K> operator*(Histogram<T,K> histogram1, const Histogram<T,K>& histogram2){
+template <class T1, class K1, class T2, class K2>
+Histogram<T1,K1> operator*(Histogram<T1,K1> histogram1, const Histogram<T2,K2>& histogram2){
   
   return histogram1 *= histogram2;
   
@@ -99,8 +112,8 @@ Histogram<T,K> operator/(Histogram<T,K> histogram, const FactorType& factor){
   
 }
 
-template <class T, class K>
-Histogram<T,K> operator/(Histogram<T,K> histogram1, const Histogram<T,K>& histogram2){
+template <class T1, class K1, class T2, class K2>
+Histogram<T1,K1> operator/(Histogram<T1,K1> histogram1, const Histogram<T2,K2>& histogram2){
   
   return histogram1 /= histogram2;
   
@@ -166,9 +179,28 @@ Histogram<T,K>::Histogram(Iterator firstBin, Iterator lastBin){
 }
 
 template <class T, class K>
-Histogram<T,K>& Histogram<T,K>::operator+=(const Histogram<T,K>& other){
+Histogram<T,K> Histogram<T,K>::operator-(){
 
-  for(auto& pair : other.countMap) countMap[pair.first] += pair.second;
+  Histogram<T,K> oppositeHistogram{*this};
+  for(auto& pair : oppositeHistogram.countMap) pair.second = -pair.second;
+  return oppositeHistogram;
+  
+}
+
+template <class T, class K>
+template <class OtherBinType, class OtherValueType>
+Histogram<T,K>& Histogram<T,K>::operator+=(const Histogram<OtherBinType,OtherValueType>& other){
+
+  for(auto& pair : other) countMap[pair.first] += pair.second;
+  return *this;
+  
+}
+
+template <class T, class K>
+template <class OtherBinType, class OtherValueType>
+Histogram<T,K>& Histogram<T,K>::operator-=(const Histogram<OtherBinType,OtherValueType>& other){
+
+  for(auto& pair : other) countMap[pair.first] -= pair.second;
   return *this;
   
 }
@@ -183,7 +215,8 @@ Histogram<T,K>& Histogram<T,K>::operator*=(const FactorType& factor){
 }
 
 template <class T, class K>
-Histogram<T,K>& Histogram<T,K>::operator*=(const Histogram<T,K>& multiplier){
+template <class OtherBinType, class OtherValueType>
+Histogram<T,K>& Histogram<T,K>::operator*=(const Histogram<OtherBinType,OtherValueType>& multiplier){
 
   for(auto itPair = std::make_pair(begin(),multiplier.begin()); itPair.first != end() && itPair.second != multiplier.end(); ++itPair.first, ++itPair.second)
     itPair.first->second *= itPair.second->second; 
@@ -206,7 +239,8 @@ Histogram<T,K>& Histogram<T,K>::operator/=(const FactorType& factor){
 }
 
 template <class T, class K>
-Histogram<T,K>& Histogram<T,K>::operator/=(const Histogram<T,K>& divider){
+template <class OtherBinType, class OtherValueType>
+Histogram<T,K>& Histogram<T,K>::operator/=(const Histogram<OtherBinType,OtherValueType>& divider){
 
   K zero{};
   
