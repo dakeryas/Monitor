@@ -32,7 +32,7 @@ public:
   void setReferenceSpectra(Iterator beginReferenceSpectra, Iterator endReferenceSpectra);
   void setReferenceSpectra(std::initializer_list<Histogram<T,K>> referenceSpectra);
   template<class ConfigurationType, class RunType>
-  void build(const Experiment<ConfigurationType, RunType>& experiment);//build the reference results according to the configrations of the experiment
+  void buildFrom(const Experiment<ConfigurationType, RunType>& experiment);//build the reference results according to the configrations of the experiment
   void applyOscillation();
   void applyCrossSection();
   template<class ConfigurationType, class RunType>
@@ -154,7 +154,7 @@ void Simulation<T,K>::setReferenceSpectra(std::initializer_list<Histogram<T,K>> 
 
 template <class T, class K>
 template<class ConfigurationType, class RunType>
-void Simulation<T,K>::build(const Experiment<ConfigurationType, RunType>& experiment){
+void Simulation<T,K>::buildFrom(const Experiment<ConfigurationType, RunType>& experiment){
   
   for(const auto& pairBin : experiment)
     results[pairBin.first] = weigh(pairBin.first.getCenter(), referenceSpectra.begin(), referenceSpectra.end());//weigh reference spectra with the composition
@@ -192,7 +192,7 @@ template <class T, class K>
 template<class ConfigurationType, class RunType>
 void Simulation<T,K>::simulateToMatch(const Experiment<ConfigurationType, RunType>& experiment){
   
-  build(experiment);
+  buildFrom(experiment);
   applyOscillation();
   applyCrossSection();
   scaleCountsTo(experiment);
