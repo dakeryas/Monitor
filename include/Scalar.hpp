@@ -26,10 +26,15 @@ public:
   Scalar<T>& operator = (Scalar<T>&& other) = default;
   template <class K>
   Scalar<T>& operator = (K otherValue);
+  Scalar<T> operator-();
   template <class K>
   Scalar<T>& operator+=(const Scalar<K>& other);
   template <class K>
   Scalar<T>& operator+=(K otherValue);//otherValue is assumed to be error-less
+    template <class K>
+  Scalar<T>& operator-=(const Scalar<K>& other);
+  template <class K>
+  Scalar<T>& operator-=(K otherValue);//otherValue is assumed to be error-less
   template <class K>
   Scalar<T>& operator*=(const Scalar<K>& other);
   template <class K>
@@ -88,6 +93,27 @@ template <class T, class K>
 Scalar<T> operator+(K otherValue, const Scalar<T>& scalar){
   
   return scalar + otherValue;
+  
+}
+
+template <class T, class K>
+Scalar<T> operator-(Scalar<T> scalar1, const Scalar<K>& scalar2){
+  
+  return scalar1 -= scalar2;
+  
+}
+
+template <class T, class K>
+Scalar<T> operator-(Scalar<T> scalar, K otherValue){
+  
+  return scalar -= otherValue;
+  
+}
+
+template <class T, class K>
+Scalar<T> operator-(K otherValue, const Scalar<T>& scalar){
+  
+  return  Scalar<T>(otherValue, K{}) -scalar;//assume zero error on otherValue, so force the error to zero since the usual constructor doesn't
   
 }
 
@@ -219,7 +245,7 @@ bool operator>(K otherValue, const Scalar<T>& scalar){
 
 template <class T>
 template <class K>
-Scalar<T>::Scalar(K value):identifier(++globalIdentifier),value(value),variance(value){
+Scalar<T>::Scalar(K value):identifier(++globalIdentifier),value(value),variance(std::abs(value)){
   
 }
 
@@ -238,13 +264,22 @@ Scalar<T>& Scalar<T>::operator = (K otherValue){
 }
 
 template <class T>
+Scalar<T> Scalar<T>::operator - (){
+  
+  Scalar<T> opposite{*this};//keep the error
+  opposite.value = - opposite.value;//change the value
+  return opposite;
+
+}
+
+template <class T>
 template <class K>
 Scalar<T>& Scalar<T>::operator+=(const Scalar<K>& other){
 
   if(identifier != other.identifier){
     
-    variance += other.variance;//indepent case Cov(X,Y) + 0
-    identifier = ++globalIdentifier;//when multiplying by another variable, assume that X+Y is now independent enough from X and from Y(for lack of an efficient alternative)
+    variance += other.variance;//indepent case Cov(X,Y) = 0
+    identifier = ++globalIdentifier;//when adding another variable, assume that X+Y is now independent enough from X and from Y(for lack of an efficient alternative)
     
   }
   else  variance += other.variance + 2 * std::sqrt(variance*other.variance);//if linearly (Person) correlated, also add 2 sqrt(varX) sqrt(varY)
@@ -260,6 +295,33 @@ template <class K>
 Scalar<T>& Scalar<T>::operator+=(K otherValue){
   
   value += otherValue;
+  return *this;
+
+}
+
+template <class T>
+template <class K>
+Scalar<T>& Scalar<T>::operator-=(const Scalar<K>& other){
+
+  if(identifier != other.identifier){
+    
+    variance += other.variance;//indepent case Cov(X,Y) = 0
+    identifier = ++globalIdentifier;//when substracting another variable, assume that X-Y is now independent enough from X and from Y(for lack of an efficient alternative)
+    
+  }
+  else  variance += other.variance - 2 * std::sqrt(variance*other.variance);//if linearly (Person) correlated, also add - 2 sqrt(varX) sqrt(varY)
+  
+  value -= other.value;
+  
+  return *this;
+
+}
+
+template <class T>
+template <class K>
+Scalar<T>& Scalar<T>::operator-=(K otherValue){
+  
+  value -= otherValue;
   return *this;
 
 }
