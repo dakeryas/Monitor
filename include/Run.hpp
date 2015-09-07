@@ -16,9 +16,16 @@ class Run{
   T spentEnergy1;//energy spent by reactor 1 during the run
   T spentEnergy2;//energy spent by reactor 2 during the run
   
+  
+  template <class ReturnType>
+  struct NeutrinoType{};//to specialise getNeutrinoRate for ReturnType = Scalar
   template <class BinType, class ValueType>
   struct HistogramTypes{};//to specialise some methods for <BinType, Scalar<ValueType>>
   
+  template <class ReturnType>
+  ReturnType getNeutrinoRate(NeutrinoType<ReturnType>, T distance1, T distance2, T backgroundRate) const;
+  template <class ReturnType>
+  Scalar<ReturnType> getNeutrinoRate(NeutrinoType<Scalar<ReturnType>>, T distance1, T distance2, T backgroundRate) const;
   template<class BinType, class ValueType, class Iterator>
   Histogram<BinType, ValueType> getScaledNeutrinoSpectrum(HistogramTypes<BinType,ValueType>, T distance1, T distance2, T backgroundRate, Iterator firstBin, Iterator lastBin) const;
   template<class BinType, class ValueType, class Iterator>
@@ -37,7 +44,7 @@ public:
   T getSpentEnergy1() const;
   T getSpentEnergy2() const;
   T getMeanSpentEnergy(T distance1, T distance2) const;//get the mean spent energy for two reactors situated at distance1 and distance2 from the detector
-  template <class ReturnType = T>
+  template <class ReturnType>
   ReturnType getNeutrinoRate(T distance1, T distance2, T backgroundRate) const;//get the rate with respect to the total energy spent and substract the background noise, if you want the error as well, set ReturnType to Scalar<T>
   template<class BinType, class ValueType, class Iterator>
   Histogram<BinType, ValueType> getNeutrinoSpectrum(Iterator firstBin, Iterator lastBin) const;
@@ -58,6 +65,32 @@ std::ostream& operator<<(std::ostream& output, const Run<T>& run){
     <<std::setw(14)<<std::left<<"\nSpentEnergy1"<<": "<<run.getSpentEnergy1()
     <<std::setw(14)<<"\nSpentEnergy2"<<": "<<run.getSpentEnergy2();
   return output;
+  
+}
+
+template <class T>
+template <class ReturnType>
+ReturnType Run<T>::getNeutrinoRate(NeutrinoType<ReturnType>, T distance1, T distance2, T backgroundRate) const{
+  
+  ReturnType meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
+  ReturnType numberOfNeutrinos = neutrinos.size() - backgroundRate * time;
+
+  ReturnType zero{};
+  if(meanSpentEnergy > zero && numberOfNeutrinos > zero) return numberOfNeutrinos/meanSpentEnergy;
+  else return zero;
+  
+}
+
+template <class T>
+template <class ReturnType>
+Scalar<ReturnType> Run<T>::getNeutrinoRate(NeutrinoType<Scalar<ReturnType>>, T distance1, T distance2, T backgroundRate) const{
+  
+  Scalar<ReturnType> meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
+  Scalar<ReturnType> numberOfNeutrinos{neutrinos.size() - backgroundRate * time, std::sqrt(neutrinos.size())};//assume no error on the background yet
+
+  Scalar<ReturnType> zero{};
+  if(meanSpentEnergy > zero && numberOfNeutrinos > zero) return numberOfNeutrinos/meanSpentEnergy;
+  else return zero;
   
 }
 
@@ -167,12 +200,7 @@ template <class T>
 template <class ReturnType>
 ReturnType Run<T>::getNeutrinoRate(T distance1, T distance2, T backgroundRate) const{
   
-  T meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
-  ReturnType numberOfNeutrinos = neutrinos.size() - backgroundRate * time;
-
-  ReturnType zero{};
-  if(meanSpentEnergy > zero && numberOfNeutrinos > zero) return numberOfNeutrinos/meanSpentEnergy;// with ReturnType = Scalar : operator(Scalar, T) returns a Saclar
-  else return zero;
+  return getNeutrinoRate(NeutrinoType<ReturnType>{}, distance1, distance2, backgroundRate);
 
 }
 
@@ -181,7 +209,7 @@ template<class BinType, class ValueType, class Iterator>
 Histogram<BinType, ValueType> Run<T>::getNeutrinoSpectrum(Iterator firstBin, Iterator lastBin) const{
 
   Histogram<BinType, ValueType> histogram(firstBin, lastBin);
-  for(const auto& neutrino : neutrinos) histogram.addCount(Point<T>{neutrino.getEnergy()});
+  for(const auto& neutrino : neutrinos) histogram.addCount(Point<BinType>{neutrino.getEnergy()});
   return histogram;
   
 }

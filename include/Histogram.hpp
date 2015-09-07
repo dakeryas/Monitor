@@ -21,6 +21,10 @@ class Histogram{
   Histogram<T,K>& scaleCountsTo(HistogramTypes<BinType,ValueType>, const NormType& newNorm);
   template <class BinType, class ValueType, class NormType>
   Histogram<T,K>& scaleCountsTo(HistogramTypes<BinType,Scalar<ValueType>>, const NormType& newNorm);
+  template <class BinType, class ValueType>
+  void addCount(HistogramTypes<BinType,ValueType>, const Point<T>& point);
+  template <class BinType, class ValueType>
+  void addCount(HistogramTypes<BinType,Scalar<ValueType>>, const Point<T>& point);
   
 public:
   Histogram() = default;
@@ -164,9 +168,29 @@ template <class BinType, class ValueType, class NormType>
 Histogram<T,K>& Histogram<T,K>::scaleCountsTo(HistogramTypes<BinType,Scalar<ValueType>>, const NormType& newNorm){
 
   ValueType totalCounts = getTotalCounts().getValue();//drop the "Scalar" when normalising since we don't want to double count the error on the bin contents
-  if(totalCounts != K{}) return *this *= newNorm/totalCounts;
+  if(totalCounts != ValueType{}) return *this *= newNorm/totalCounts;
   else return *this;
 
+}
+
+template <class T, class K>
+template <class BinType, class ValueType>
+void Histogram<T,K>::addCount(HistogramTypes<BinType,ValueType>, const Point<T>& point){
+
+  auto it = std::find_if(countMap.begin(), countMap.end(),[&](const auto& pairBin){return pairBin.first.contains(point);});
+  if(it != countMap.end()) it->second += ValueType{1};
+  else Tracer(Verbose::Warning)<<"No channel matches: "<<point<<" => Count not added"<<std::endl;
+  
+}
+
+template <class T, class K>
+template <class BinType, class ValueType>
+void Histogram<T,K>::addCount(HistogramTypes<BinType,Scalar<ValueType>>, const Point<T>& point){
+
+  auto it = std::find_if(countMap.begin(), countMap.end(),[&](const auto& pairBin){return pairBin.first.contains(point);});
+  if(it != countMap.end()) it->second += Scalar<ValueType>{1, 1};//add the statistical error when dealing with Scalar<>
+  else Tracer(Verbose::Warning)<<"No channel matches: "<<point<<" => Count not added"<<std::endl;
+  
 }
 
 template <class T, class K>
@@ -390,10 +414,8 @@ void Histogram<T,K>::addChannels(Iterator begin, Iterator end){
 
 template <class T, class K>
 void Histogram<T,K>::addCount(const Point<T>& point){
-
-  auto it = std::find_if(countMap.begin(), countMap.end(),[&](const auto& pairBin){return pairBin.first.contains(point);});
-  if(it != countMap.end()) it->second += K{1};
-  else Tracer(Verbose::Warning)<<"No channel matches: "<<point<<" => Count not added"<<std::endl;
+  
+  addCount(HistogramTypes<T,K>{}, point);
   
 }
 
