@@ -15,7 +15,6 @@ FLAGS = $(ROOTFLAGS) $(INCLUDEFLAGS) $(OPTFLAGS)
 LIBS :=  $(shell root-config --libs)
 LIBS += -lrt
 LIBS += -L$(BOOST_PATH)/lib -lboost_filesystem -lboost_system -lboost_program_options
-LIBS += -lstdc++
 
 OBJS := $(patsubst %.cpp,%.o,$(addprefix $(ODIR)/,$(wildcard *.cpp)))
 OBJS += $(patsubst $(SDIR)/%.cpp,$(ODIR)/%.o,$(wildcard $(SDIR)/*.cpp))
