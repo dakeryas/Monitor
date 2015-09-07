@@ -1,4 +1,4 @@
-CXX=clang++
+CXX = clang++
 ODIR = ./objects
 SDIR = ./src
 IDIR = ./include

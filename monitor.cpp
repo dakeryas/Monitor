@@ -10,18 +10,19 @@ namespace bpo = boost::program_options;
 
 void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outname, const std::vector<Histogram<double, double>>& referenceSpectra){
   
-  Binner<double> binner({Axis<double>(5, 0.44, 0.66), Axis<double>(1, 0.085, 0.091), Axis<double>(5, 0.22, 0.4), Axis<double>(2, 0.03, 0.08)});
+  Binner<double> binner({Axis<double>(5, 0.44, 0.66), Axis<double>(2, 0.085, 0.091), Axis<double>(5, 0.22, 0.4), Axis<double>(2, 0.03, 0.08)});
   
   ExperimentExtractor experimentExtractor(data, simu1, simu2);//use the simulations to create Fuel bins for the data
   auto experiment = experimentExtractor.extractExperiment<double, double>(constants::distance::L1, constants::distance::L2, constants::backgroundRate::total, binner.generateBinning());
   experiment.slim();
-  std::cout<<experiment<<std::endl;
-  std::cout<<"Integrated Experiment:\n"<<experiment.integrateChannels({0,1,3})<<std::endl;
+  std::cout<<experiment<<"\n";
   
   Simulation<double, double> simulation(constants::distance::average, constants::mixing::th13, constants::squaredMass::delta31, referenceSpectra.begin(), referenceSpectra.end());
   simulation.simulateToMatch(experiment);
   simulation.shiftResultingSpectra(constants::mass::proton - constants::mass::neutron  + constants::mass::electron);//convert the neutrino's energy to the positron's energy + electron's annihilation mass
-//   std::cout<<simulation<<std::endl;
+//   std::cout<<"Simulation:\n"<<simulation;
+  
+   std::cout<<"Integrated Experiment:\n"<<experiment.integrateChannels({1,3})<<"\n";
   
   TFile outfile(outname, "recreate");
   auto rate = Converter::toTH1(experiment.getRateHistogram<double,Scalar<double>>());
@@ -40,35 +41,37 @@ void neutrinoRetriever(TTree* data, TTree* simu1, TTree* simu2, const char* outn
     
   }
 
-  Point<double> referenceConfiguration{0.575, 0.0875, 0.274, 0.0425};//U5,U8,PU9,PU41
-  
-//   auto normaliser = simulation.getResulingSpectrum(referenceConfiguration);
-  unsigned index{};
+//   Point<double> referenceConfiguration{0.575, 0.0875, 0.274, 0.0425};//U5,U8,PU9,PU41
+//   auto normaliserSimu = simulation.getResulingSpectrum(referenceConfiguration);
+// 
+//   unsigned simIndex{};
 //   for(auto pair : simulation.getResults()){
 // 
-//     pair.second /= normaliser;
+//     pair.second /= normaliserSimu;
 //     auto spectrum = Converter::toTH1(pair.second);
-//     spectrum->SetName(("spectrum_simu_"+std::to_string(index)).c_str());
+//     spectrum->SetName(("spectrum_simu_"+std::to_string(simIndex)).c_str());
 //     spectrum->SetTitle(Converter::toString(pair.first.getCenter()).c_str());
-//     if(index + 1 != 10) spectrum->SetLineColor(index + 1);
+//     if(simIndex + 1 != 10) spectrum->SetLineColor(simIndex + 1);
 //     else spectrum->SetLineColor(kOrange +1);
 //     spectrum->SetLineWidth(2);
 //     spectrum->Write();
 // 
-//     ++index;
+//     ++simIndex;
 //     
 //   }
   
   Histogram<double,Scalar<double>> energyHistogram;
-  binner.setAxes(4, 0., 8);
+  binner.setAxes(2, 0., 8);
   auto energyChannels = binner.generateBinning();
-//   auto normaliser = experiment.getScaledNeutrinoSpectrum<double, Scalar<double>>(referenceConfiguration, energyChannels);
-  index = 0;
+  Point<double> referenceConfiguration{0.5, 0.35};
+  auto normaliser = experiment.getScaledNeutrinoSpectrum<double, double>(referenceConfiguration, energyChannels);
+  unsigned index{};
   for(const auto& pair : experiment){
    
     energyHistogram = pair.second.getScaledNeutrinoSpectrum<double,Scalar<double>>(experiment.getDistance1(), experiment.getDistance2(), experiment.getBackgroundRate(),energyChannels);
 //     energyHistogram = pair.second.getNeutrinoSpectrum<double,Scalar<double>>(energyChannels);
 //     energyHistogram /= normaliser;
+    
     auto spectrum = Converter::toTH1(energyHistogram);
     spectrum->SetName(("spectrum_data_"+std::to_string(index)).c_str());
     spectrum->SetTitle(Converter::toString(pair.first.getCenter()).c_str());
