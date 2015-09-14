@@ -221,11 +221,11 @@ void Experiment<T,K>::clear(){
 template <class T,class K>
 Experiment<T,K>& Experiment<T,K>::slim(){
   
-  auto itDelete = std::find_if(runMap.begin(),runMap.end(),[](const auto& pair){return pair.second == Run<K>{};});
+  auto itDelete = std::find_if(runMap.begin(),runMap.end(),[](const auto& pair){return pair.second.getNumberOfCandidates() == 0;});
   while(itDelete != runMap.end()){
     
     auto itPastGarbage = runMap.erase(itDelete);//delete element and return an iterator to element past the one deleted
-    itDelete = std::find_if(itPastGarbage,runMap.end(),[](const auto& pair){return pair.second == Run<K>{};});//start from the last deleted element for efficiency
+    itDelete = std::find_if(itPastGarbage,runMap.end(),[](const auto& pair){return pair.second.getNumberOfCandidates() == 0;});//start from the last deleted element for efficiency
     
   }
   
