@@ -18,7 +18,7 @@ public:
   template <class K>
   Scalar(K value);//sets the error to 0
   template <class K1, class K2>
-  Scalar(K1 value, K2 error);
+  Scalar(K1 value, K2 variance);
   Scalar(const Scalar<T>& other) = default;
   Scalar(Scalar<T>&& other) = default;
   ~Scalar() = default;
@@ -33,12 +33,15 @@ public:
   bool isEqualTo(const Scalar<T>& other) const;
   bool isLessThan(const Scalar<T>& other) const;//does not take errors into account
   T getValue() const;
+  T getVariance() const;
   auto getError() const;
   auto getRelativeError() const;
   auto getCovarianceWith(const Scalar<T>& other) const;//Cov(X,Y)
   auto getCovarianceOfSquareWithSquareOf(const Scalar<T>& other) const;//Cov(X2,Y2)
   template <class K>
   void setValue(K value);
+  template <class K>
+  void setVariance(K variance);
   template <class K>
   void setError(K error);
   
@@ -157,7 +160,7 @@ Scalar<T>::Scalar(K value):identifier(++globalIdentifier),value(value),variance(
 
 template <class T>
 template <class K1, class K2>
-Scalar<T>::Scalar(K1 value, K2 error):identifier(++globalIdentifier),value(value),variance(error * error){
+Scalar<T>::Scalar(K1 value, K2 variance):identifier(++globalIdentifier),value(value),variance(variance){
   
 }
 
@@ -263,6 +266,13 @@ T Scalar<T>::getValue() const{
 }
 
 template <class T>
+T Scalar<T>::getVariance() const{
+
+  return variance;
+  
+}
+
+template <class T>
 auto Scalar<T>::getError() const{
 
   return std::sqrt(variance);
@@ -304,6 +314,14 @@ template <class K>
 void Scalar<T>::setValue(K value){
 
   this->value = value;
+  
+}
+
+template <class T>
+template <class K>
+void Scalar<T>::setVariance(K variance){
+
+  this->variance = variance;
   
 }
 

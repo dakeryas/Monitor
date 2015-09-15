@@ -86,7 +86,7 @@ template <class ReturnType>
 Scalar<ReturnType> Run<T>::getNeutrinoRate(NeutrinoType<Scalar<ReturnType>>, T distance1, T distance2, T backgroundRate) const{
   
   Scalar<ReturnType> meanSpentEnergy = getMeanSpentEnergy(distance1, distance2);
-  Scalar<ReturnType> numberOfNeutrinos{neutrinos.size() - backgroundRate * time, std::sqrt(neutrinos.size())};//assume no error on the background yet
+  Scalar<ReturnType> numberOfNeutrinos{neutrinos.size() - backgroundRate * time, neutrinos.size()};//assume no error on the background yet
 
   Scalar<ReturnType> zero{};
   if(meanSpentEnergy > zero && numberOfNeutrinos > zero) return numberOfNeutrinos/meanSpentEnergy;
